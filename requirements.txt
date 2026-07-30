@@ -1,0 +1,8 @@
+torch>=2.2.0
+transformers>=4.40.0
+datasets>=2.18.0
+accelerate>=0.29.0
+tqdm>=4.66.0
+math_verify>=0.7.0
+nltk>=3.8.0
+requests>=2.31.0
