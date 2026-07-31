@@ -1,6 +1,6 @@
 # Back from the Future: Key-Value Cache Management by Counter-Causal Surprise
 
-A simple yet effective KV cache eviction scheme motivated by the insight that past tokens which can be well-predicted from more recent tokens are redundant and their associated keys and values can be removed from the cache. To score entries for eviction we run the model on the tokens in their original order, reusing the key and value representations already stored in the KV cache, and applying a counter-causal attention mask so that each position attends only to its future context. This is in-distribution, tied directly to the actual cache contents, and requires no additional training.
+A simple yet effective KV cache eviction scheme motivated by the insight that past tokens which can be well-predicted from more recent tokens are redundant and their associated keys and values can be removed from the cache. To score entries for eviction we run the model on the tokens in their original order, reusing the key and value representations already stored in the KV cache, and applying a counter-causal attention mask so that each position attends only to its future context. This is in-distribution, tied directly to the actual cache contents, and requires no additional training. [[Paper](https://arxiv.org/abs/2607.27600)]
 
 <table>
   <tr>
@@ -134,3 +134,15 @@ output = generate_with_kv_hook(model, tokenizer, inputs.input_ids,
                                 max_new_tokens=256, chunk_size=128, kv_hook=hook)
 print(output)
 ```
+
+## Reference
+
+```
+@article{gould2026counter,
+  title   = {Back from the Future: Key-Value Cache Management by Counter-Causal Surprise},
+  author  = {Stephen Gould and Anton van den Hengel},
+  journal = {arXiv preprint arXiv:2607.27600}, 
+  year    = {2026}
+}
+```
+
