@@ -49,6 +49,8 @@ the pod and record them in each manifest — `env.transformers` is captured auto
 | runID | date | branch | commit | model | dataset (slice) | strategy | config | GPU-h | status | headline result | notes |
 |-------|------|--------|--------|-------|-----------------|----------|--------|-------|--------|-----------------|-------|
 | R-00 | 2026-08-08 | dtype-verification | ca3919a | both | n/a | n/a (code change) | plans/dtype-verification.md | 0 | done | upstream loads both checkpoints as fp16; both are natively bf16 | no evaluation run; adds `--dtype`, default float16 so R-runs are unchanged unless passed. Verification carried by R-01/R-05/R-06/R-10 re-run with `--dtype bfloat16` |
+| R-00-qwen | | r00-bf16 | 4f3347a | Qwen2.5-7B | MATH500 (500) | full | configs/r00_qwen.yaml | | queued | | bf16 vs upstream fp16; target ≈.766; `hook: none` isolates weight dtype |
+| R-00-llama | | r00-bf16 | 4f3347a | Llama-3.1-8B | MATH500 (500) | full | configs/r00_llama.yaml | | queued | | bf16 vs upstream fp16; target ≈.488; gated model, needs HF login |
 | R-01 | | main | | Llama-3.1-8B | MATH500 | full | configs/r01.yaml | | | | env sanity anchor; target ≈.488 |
 | R-02 | | main | | Llama-3.1-8B | MATH500 | sliding | configs/r02.yaml | | | | target ≈.458 |
 | R-03 | | main | | Llama-3.1-8B | MATH500 | H2O | | | | | target ≈.464 |
