@@ -13,7 +13,7 @@
 # state change, so four concurrent runs stay readable. Follow one with:
 #     tail -f logs/R-06.log
 #
-# Git is touched only by --finalize, which runs sequentially after the streams finish —
+# Git is touched only by --finalize, which you run yourself after reviewing the results —
 # concurrent commits would collide on index.lock. Resumable: a run whose
 # results/<runID>/metrics.json exists is skipped.
 #
@@ -200,8 +200,8 @@ if [ "$PARALLEL" -gt 1 ]; then
     if [ "$running" -ge "$PARALLEL" ]; then wait -n; running=$((running - 1)); fi
   done
   wait
-  say "all streams finished — finalizing"
-  finalize
+  say "all streams finished. Nothing was committed — review, then run:"
+  say "    bash scripts/run_queue.sh --finalize"
 else
   for entry in "${QUEUE[@]}"; do
     run_one "${entry%%:*}" "${entry#*:}"
