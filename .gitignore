@@ -41,3 +41,6 @@ models/
 # NOTE: results/<runID>/raw/*.jsonl.gz is deliberately NOT ignored — CLAUDE.md
 # allows committing compressed generations under 50MB. Anything larger stays on
 # the pod, with sha256 + regeneration command recorded in the manifest.
+
+# Run queue logs — regenerated every run, never worth committing
+logs/
