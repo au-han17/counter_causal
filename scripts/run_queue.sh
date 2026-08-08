@@ -17,7 +17,7 @@
 set -uo pipefail   # deliberately not -e: one bad run must not kill the queue
 
 cd "$(dirname "$0")/.." || exit 1
-PY="${PYTHON:-python}"
+PY="${PYTHON:-$(command -v python || command -v python3)}"
 mkdir -p logs
 LOG="logs/queue-$(date +%Y%m%d-%H%M%S).log"
 
@@ -82,6 +82,7 @@ preflight() {
     say "ok   working tree clean"
   fi
 
+  say "     checking torch/cuda/yaml — first import on a fresh pod can take 30-90s ..."
   if $PY -c "import torch,yaml,transformers; assert torch.cuda.is_available()" 2>>"$LOG"; then
     say "ok   torch+cuda+yaml: $($PY -c 'import torch;print(torch.cuda.get_device_name(0))')"
   else
