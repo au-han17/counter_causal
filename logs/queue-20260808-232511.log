@@ -1,0 +1,35 @@
+[23:25:12] === preflight ===
+[23:25:12] ok   git identity: uakhan17 <your.email@example.com>
+[23:25:12] skip push auth (--no-push); results commit locally only
+[23:25:12] WARN working tree dirty — manifests will record dirty:true
+[23:25:17] ok   torch+cuda+yaml: NVIDIA GeForce RTX 3090
+  ok    r00_llama.yaml         task=math500 hook=none dtype=bfloat16
+  ok    r00_qwen.yaml          task=math500 hook=none dtype=bfloat16
+  ok    r01.yaml               task=math500 hook=none dtype=float16
+  ok    r02.yaml               task=math500 hook=sliding cache_size=512 dtype=float16
+  ok    r03.yaml               task=math500 hook=h2o cache_size=512 dtype=float16
+  ok    r04.yaml               task=math500 hook=counter_causal cache_size=512 dtype=float16
+  ok    r05.yaml               task=math500 hook=counter_fast cache_size=512 dtype=float16
+  ok    r06.yaml               task=math500 hook=none dtype=float16
+  ok    r07.yaml               task=math500 hook=sliding cache_size=512 dtype=float16
+  ok    r08.yaml               task=math500 hook=h2o cache_size=512 dtype=float16
+  ok    r09.yaml               task=math500 hook=counter_causal cache_size=512 dtype=float16
+  ok    r10.yaml               task=math500 hook=counter_fast cache_size=512 dtype=float16
+  ok    r11_fast.yaml          task=longhealth hook=counter_fast cache_size=8000 dtype=float16
+  ok    r11_full.yaml          task=longhealth hook=counter_causal cache_size=8000 dtype=float16
+  ok    r12_fast.yaml          task=longhealth hook=counter_fast cache_size=9000 dtype=float16
+  ok    r12_full.yaml          task=longhealth hook=counter_causal cache_size=9000 dtype=float16
+  ok    r13_counter.yaml       task=locomo hook=counter_causal cache_size=15000 dtype=float16
+  ok    r13_fast.yaml          task=locomo hook=counter_fast cache_size=15000 dtype=float16
+  ok    r13_full.yaml          task=locomo hook=none dtype=float16
+  ok    r13_h2o.yaml           task=locomo hook=h2o cache_size=15000 dtype=float16
+  ok    r13_sliding.yaml       task=locomo hook=sliding cache_size=15000 dtype=float16
+  ok    r14_counter.yaml       task=locomo hook=counter_causal cache_size=17000 dtype=float16
+  ok    r14_fast.yaml          task=locomo hook=counter_fast cache_size=17000 dtype=float16
+  ok    r14_full.yaml          task=locomo hook=none dtype=float16
+  ok    r14_h2o.yaml           task=locomo hook=h2o cache_size=17000 dtype=float16
+  ok    r14_sliding.yaml       task=locomo hook=sliding cache_size=17000 dtype=float16
+
+26 valid, 0 invalid
+[23:25:22] ok   configs validate
+[23:25:22] preflight OK

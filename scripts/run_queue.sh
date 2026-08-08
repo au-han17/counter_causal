@@ -4,6 +4,10 @@
 #   bash scripts/run_queue.sh              # everything still outstanding
 #   bash scripts/run_queue.sh R-00-llama   # just these
 #   bash scripts/run_queue.sh --preflight  # checks only, run nothing
+#   bash scripts/run_queue.sh --no-push    # commit locally, never push
+#
+# --no-push still commits every run, so nothing is lost to a crash — only to losing the
+# pod itself. Push the lot afterwards with:  git push origin main
 #
 # Resumable: any run with results/<runID>/metrics.json already present is skipped, so a
 # reclaimed pod costs at most the in-flight run. A failing run is logged and the queue
@@ -61,11 +65,14 @@ preflight() {
     say "ok   git identity: $(git config user.name) <$(git config user.email)>"
   fi
 
-  if git push --dry-run origin HEAD >>"$LOG" 2>&1; then
+  if [ "$PUSH" = "0" ]; then
+    say "skip push auth (--no-push); results commit locally only"
+  elif git push --dry-run origin HEAD >>"$LOG" 2>&1; then
     say "ok   push auth"
   else
-    say "FAIL cannot push. HTTPS needs a token baked into the remote:"
+    say "FAIL cannot push. Either bake a token into the remote:"
     say "     git remote set-url origin https://<TOKEN>@github.com/au-han17/counter_causal.git"
+    say "     or re-run with --no-push to commit locally and push in the morning."
     ok=1
   fi
 
@@ -116,7 +123,9 @@ run_one() {
     return 0
   fi
   git commit -q -m "[$id] run result" && say "committed $id"
-  if git push -q origin HEAD 2>>"$LOG"; then
+  if [ "$PUSH" = "0" ]; then
+    say "not pushed ($id) — --no-push"
+  elif git push -q origin HEAD 2>>"$LOG"; then
     say "pushed $id"
   else
     say "WARN push failed for $id — results are committed locally only"
@@ -124,15 +133,27 @@ run_one() {
 }
 
 # ---- entry ----
-if [ "${1:-}" = "--preflight" ]; then
-  preflight && say "preflight OK" || say "preflight FAILED"
-  exit $?
+PUSH=1
+PREFLIGHT_ONLY=0
+WANTED=()
+for a in "$@"; do
+  case "$a" in
+    --no-push)   PUSH=0 ;;
+    --preflight) PREFLIGHT_ONLY=1 ;;
+    -*)          say "unknown option: $a"; exit 2 ;;
+    *)           WANTED+=("$a") ;;
+  esac
+done
+
+if [ "$PREFLIGHT_ONLY" = "1" ]; then
+  if preflight; then say "preflight OK"; exit 0; else say "preflight FAILED"; exit 1; fi
 fi
 
 preflight || { say "preflight FAILED — aborting before any GPU time is spent"; exit 1; }
+[ "$PUSH" = "0" ] && say "NOTE --no-push: run 'git push origin main' once you are back"
 
-if [ $# -gt 0 ]; then
-  for want in "$@"; do
+if [ ${#WANTED[@]} -gt 0 ]; then
+  for want in "${WANTED[@]}"; do
     for entry in "${RUNS[@]}"; do
       [ "${entry%%:*}" = "$want" ] && run_one "${entry%%:*}" "${entry#*:}"
     done
