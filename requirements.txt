@@ -1,8 +1,13 @@
 torch>=2.2.0
-transformers>=4.40.0
+# 4.56 is the floor that actually works: hooks.py uses DynamicCache.layers /
+# DynamicLayer (added in 4.54) and evaluate.py passes from_pretrained(dtype=...),
+# which replaced torch_dtype in 4.56. The previous >=4.40.0 floor could not run
+# this code at all.
+transformers>=4.56.0
 datasets>=2.18.0
 accelerate>=0.29.0
 tqdm>=4.66.0
 math_verify>=0.7.0
 nltk>=3.8.0
 requests>=2.31.0
+pyyaml>=6.0

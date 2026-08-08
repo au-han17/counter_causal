@@ -1,0 +1,13 @@
+# R-00-llama — Llama-3.1-8B-Instruct, MATH500, full cache, bf16
+#
+# Purpose: as r00_qwen.yaml, for the second target model.
+# Paper Table 2 target: .488
+#
+# Note: meta-llama/Llama-3.1-8B-Instruct is gated on HuggingFace. Accept the
+# licence on the model page and `huggingface-cli login` before running.
+task: math500
+model: meta-llama/Llama-3.1-8B-Instruct
+dtype: bfloat16
+hook: none
+max_new_tokens: 2048
+seed: 0

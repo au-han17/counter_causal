@@ -1,0 +1,14 @@
+# R-00-qwen — Qwen2.5-7B-Instruct, MATH500, full cache, bf16
+#
+# Purpose: does loading the natively-bf16 checkpoint in bf16 change MATH500
+# accuracy relative to the fp16 runs? Compare against paper Table 2 (.766) and
+# against the existing fp16 result for the same configuration.
+#
+# hook: none  =>  full cache, no eviction. Isolates weight dtype from any
+# eviction or scoring-dtype effect.
+task: math500
+model: Qwen/Qwen2.5-7B-Instruct
+dtype: bfloat16
+hook: none
+max_new_tokens: 2048
+seed: 0
