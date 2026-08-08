@@ -3,6 +3,7 @@
 # Env sanity anchor. Run this before anything else.
 task: math500
 model: meta-llama/Llama-3.1-8B-Instruct
+dtype: float16
 hook: none
 max_new_tokens: 2048
 seed: 0

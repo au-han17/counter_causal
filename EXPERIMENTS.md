@@ -44,23 +44,39 @@ Verified by inspecting `cache_utils.py` and `modeling_utils.py` at tags v4.40.0/
 v4.56.0. Floor raised to `>=4.56.0`; `pyyaml` added. Pin the exact resolved versions on
 the pod and record them in each manifest — `env.transformers` is captured automatically.
 
+## Branch layout
+`main` = upstream method + our instrumentation. `run-harness` and `dtype-verification`
+are merged in; the integration branch `r00-bf16` is merged and deleted. Defaults are
+unchanged (`--dtype float16`, `--run_id` opt-in), so `main` still reproduces Steve's
+behaviour exactly — it can now record what it did. Nothing in `hooks.py` or `tasks.py`
+was touched, so rule 1 holds.
+
+All reproduction runs (R-00 … R-15) execute from `main` with `--config` + `--run_id`.
+Q1/Q2/Q3 branch from `main` and inherit the harness. The original `run-harness` and
+`dtype-verification` branches are kept as the record of each change in isolation.
+
+Every `configs/*.yaml` is checked against the live argparse definition by
+`tests/validate_configs.py` (26/26 valid). `recent_size` is deliberately omitted
+everywhere so `build_hook` applies the upstream defaults documented in README
+"Key arguments": 0, or `cache_size//2` for h2o.
+
 ## Ledger
 
 | runID | date | branch | commit | model | dataset (slice) | strategy | config | GPU-h | status | headline result | notes |
 |-------|------|--------|--------|-------|-----------------|----------|--------|-------|--------|-----------------|-------|
 | R-00 | 2026-08-08 | dtype-verification | ca3919a | both | n/a | n/a (code change) | plans/dtype-verification.md | 0 | done | upstream loads both checkpoints as fp16; both are natively bf16 | no evaluation run; adds `--dtype`, default float16 so R-runs are unchanged unless passed. Verification carried by R-01/R-05/R-06/R-10 re-run with `--dtype bfloat16` |
-| R-00-qwen | | r00-bf16 | 4f3347a | Qwen2.5-7B | MATH500 (500) | full | configs/r00_qwen.yaml | | queued | | bf16 vs upstream fp16; target ≈.766; `hook: none` isolates weight dtype |
-| R-00-llama | | r00-bf16 | 4f3347a | Llama-3.1-8B | MATH500 (500) | full | configs/r00_llama.yaml | | queued | | bf16 vs upstream fp16; target ≈.488; gated model, needs HF login |
+| R-00-qwen | | main | | Qwen2.5-7B | MATH500 (500) | full | configs/r00_qwen.yaml | | queued | | bf16 vs upstream fp16; target ≈.766; `hook: none` isolates weight dtype |
+| R-00-llama | | main | | Llama-3.1-8B | MATH500 (500) | full | configs/r00_llama.yaml | | queued | | bf16 vs upstream fp16; target ≈.488; gated model, needs HF login |
 | R-01 | | main | | Llama-3.1-8B | MATH500 | full | configs/r01.yaml | | | | env sanity anchor; target ≈.488 |
 | R-02 | | main | | Llama-3.1-8B | MATH500 | sliding | configs/r02.yaml | | | | target ≈.458 |
-| R-03 | | main | | Llama-3.1-8B | MATH500 | H2O | | | | | target ≈.464 |
-| R-04 | | main | | Llama-3.1-8B | MATH500 | counter-causal (full) | | | | | target ≈.482; enable --dump_scores |
-| R-05 | | main | | Llama-3.1-8B | MATH500 | counter-causal (fast) | | | | | target ≈.480 |
-| R-06..R-10 | | main | | Qwen2.5-7B | MATH500 | same five | | | | | targets .766/.692/.762/.744/.736 |
-| R-11 | | main | | Llama-3.1-8B | LongHealth (all 400) | counter-causal (full) vs (fast) | anomaly cache size 8000 | | | | anomaly: counter-causal fast > counter-causal full? |
-| R-12 | | main | | Llama-3.1-8B | LongHealth | same | anomaly cache size 9000 | | | | robustness of anomaly |
-| R-13 | | main | | Llama-3.1-8B | LoCoMo multi-hop (282) | five strategies | anomaly cache size 15000 | | | | anomaly: fast > full-cache? H2O collapse? |
-| R-14 | | main | | Llama-3.1-8B | LoCoMo multi-hop (282) | five strategies | adjacent cache size 17000 | | | | robustness |
+| R-03 | | main | | Llama-3.1-8B | MATH500 | H2O | configs/r03.yaml | | | | target ≈.464 |
+| R-04 | | main | | Llama-3.1-8B | MATH500 | counter-causal (full) | configs/r04.yaml | | | | target ≈.482; enable --dump_scores |
+| R-05 | | main | | Llama-3.1-8B | MATH500 | counter-causal (fast) | configs/r05.yaml | | | | target ≈.480 |
+| R-06..R-10 | | main | | Qwen2.5-7B | MATH500 | same five | configs/r06..r10.yaml | | | | targets .766/.692/.762/.744/.736 |
+| R-11 | | main | | Llama-3.1-8B | LongHealth (all 400) | counter-causal (full) vs (fast) | configs/r11_{full,fast}.yaml (cache 8000) | | | | anomaly: counter-causal fast > counter-causal full? |
+| R-12 | | main | | Llama-3.1-8B | LongHealth | same | configs/r12_{full,fast}.yaml (cache 9000) | | | | robustness of anomaly |
+| R-13 | | main | | Llama-3.1-8B | LoCoMo multi-hop (282) | five strategies | configs/r13_*.yaml (cache 15000) | | | | anomaly: fast > full-cache? H2O collapse? |
+| R-14 | | main | | Llama-3.1-8B | LoCoMo multi-hop (282) | five strategies | configs/r14_*.yaml (cache 17000) | | | | robustness |
 | R-15 | 2026-08-08 | run-harness | 5507952 | n/a | n/a | n/a (infrastructure) | plans/run-harness.md | 0 | code done, smoke run pending | config loader + manifest writer; `transformers>=4.40` floor could not run this code, raised to `>=4.56` | adds `--config/--run_id/--seed`, `runlog.py`, `configs/r01.yaml`, `configs/r02.yaml`, `tests/test_runlog.py`. Unit checks 5/5 local; no end-to-end run yet (local env is transformers 4.40, no weights) |
 
 
