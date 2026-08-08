@@ -18,10 +18,24 @@ Every row must have a matching `results/<runID>/manifest.json` and a commit tagg
 ## Preliminary Precision Verification
 In the original repo, model weights loaded for Qwen2.5-7B-Instruct and Llama-3.1-8B-Instruct are in float16. However, their original weights are in bf16 format. Rerun two models in bf16 on Math500 and compare results with reference numbers in the paper. If results deviates, make new plans. potential surprise score dtype issue: counter causal in fp32; counter causal fast in fp16 (pending on model weights dtype).
 
+**Tracked as R-00** — branch `dtype-verification`, plan `plans/dtype-verification.md`.
+Both checkpoints confirmed `torch_dtype: bfloat16` in their HF `config.json`
+(Llama's own repo is gated; value read from the `unsloth` mirror of the same weights).
+`evaluate.py` now takes `--dtype {float16,bfloat16,float32}`, defaulting to `float16`
+so nothing already run changes silently. Weight dtype is recorded in each run's output JSON.
+
+Note the direction of the scoring-dtype interaction: `counter_causal_fast_hook` never
+casts its logits (`hooks.py:451`) while `counter_causal_hook` casts to fp32
+(`hooks.py:357`). bf16 has 7 mantissa bits against fp16's 10, so moving weights to bf16
+makes the fast hook's surprise *ranking* coarser, not finer. R-05/R-10 therefore confound
+two effects and should not be read as a clean weight-dtype signal; R-01/R-06 (no eviction)
+are the clean comparisons. Scoring dtype left unchanged pending those results.
+
 ## Ledger
 
 | runID | date | branch | commit | model | dataset (slice) | strategy | config | GPU-h | status | headline result | notes |
 |-------|------|--------|--------|-------|-----------------|----------|--------|-------|--------|-----------------|-------|
+| R-00 | 2026-08-08 | dtype-verification | ca3919a | both | n/a | n/a (code change) | plans/dtype-verification.md | 0 | done | upstream loads both checkpoints as fp16; both are natively bf16 | no evaluation run; adds `--dtype`, default float16 so R-runs are unchanged unless passed. Verification carried by R-01/R-05/R-06/R-10 re-run with `--dtype bfloat16` |
 | R-01 | | main | | Llama-3.1-8B | MATH500 | full | configs/r01.yaml | | | | env sanity anchor; target ≈.488 |
 | R-02 | | main | | Llama-3.1-8B | MATH500 | sliding | configs/r02.yaml | | | | target ≈.458 |
 | R-03 | | main | | Llama-3.1-8B | MATH500 | H2O | | | | | target ≈.464 |
