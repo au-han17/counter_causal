@@ -51,6 +51,15 @@ No evaluation. Verification only:
 - Updated `requirements.txt`
 - EXPERIMENTS.md row for R-15
 
+**Deviations from plan.** Added `tests/test_runlog.py` (not in the original expected
+outputs) so the harness checks are re-runnable rather than one-off. Also moved the
+settings block in `evaluate.py` ahead of the model load, so a bad config fails before a
+multi-GB download instead of after it.
+
+**Not yet verified end-to-end.** The local box has transformers 4.40, below the new 4.56
+floor, and no model weights, so no full evaluation has been run. `results/R-15/manifest.json`
+must be produced by the first smoke run on the pod before R-15 can be marked done.
+
 ## Out of scope
 
 - Any change to eviction, scoring, or generation logic

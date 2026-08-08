@@ -1,0 +1,8 @@
+# R-01 — Llama-3.1-8B-Instruct, MATH500, full cache (no eviction)
+# Paper Table 2 target: .488
+# Env sanity anchor. Run this before anything else.
+task: math500
+model: meta-llama/Llama-3.1-8B-Instruct
+hook: none
+max_new_tokens: 2048
+seed: 0
