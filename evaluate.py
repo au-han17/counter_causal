@@ -7,7 +7,8 @@ Example usage:
   python evaluate.py --task math500 --hook counter_causal --cache_size 512 --chunk_size 256 --out results.json
   python evaluate.py --task math500 --hook counter_fast --cache_size 512 --chunk_size 256 --out results.json
   python evaluate.py --task longhealth --hook counter_causal --cache_size 4096 --auto_frozen --out results.json
-  python evaluate.py --config configs/r01.yaml --run_id R-01
+  python evaluate.py --task math500 --hook none --dtype bfloat16 --out results_bf16.json
+  python evaluate.py --config configs/r00_qwen.yaml --run_id R-00-qwen
 """
 
 import json
@@ -75,6 +76,9 @@ def main():
     # --task is validated after parsing so a config file can supply it
     parser.add_argument("--task", choices=["math500", "longhealth", "qasper", "locomo"])
     parser.add_argument("--model", default="Qwen/Qwen2.5-7B-Instruct", help="HuggingFace model ID")
+    parser.add_argument("--dtype", choices=["float16", "bfloat16", "float32"], default="float16",
+                        help="Weight dtype. Default float16 matches upstream; both target "
+                             "checkpoints are natively bfloat16")
     parser.add_argument("--hook", choices=["none", "sliding", "importance", "h2o", "counter_causal", "counter_fast"], default="none")
     parser.add_argument("--refresh_mode", choices=["chunked", "prefill_end"], default="chunked")
     parser.add_argument("--frozen_size", type=int, default=0, help="Leading tokens never evicted (e.g. system prompt length)")
@@ -115,6 +119,7 @@ def main():
     print(f"\nSettings:")
     print(f"  task:         {args.task}")
     print(f"  model:        {args.model}")
+    print(f"  dtype:        {args.dtype}")
     print(f"  hook:         {args.hook}")
     print(f"  cache_size:   {args.cache_size}")
     print(f"  chunk_size:   {args.chunk_size}")
@@ -127,12 +132,14 @@ def main():
     print()
 
     # ---- model ----
-    print(f"Loading {args.model} ...")
+    print(f"Loading {args.model} ({args.dtype}) ...")
     tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
     model = AutoModelForCausalLM.from_pretrained(
-        args.model, dtype=torch.float16, device_map="cuda", trust_remote_code=True
+        args.model, dtype=getattr(torch, args.dtype), device_map="cuda", trust_remote_code=True
     )
     model.eval()
+    # Confirm what actually landed on the GPU, not just what was requested.
+    print(f"Loaded. resolved weight dtype: {model.dtype}")
 
     # ---- frozen size from system prompt ----
     if args.auto_frozen:
