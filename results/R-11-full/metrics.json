@@ -1,0 +1,23 @@
+{
+  "score_key": "accuracy",
+  "score": 0.79,
+  "task": "longhealth",
+  "model": "meta-llama/Llama-3.1-8B-Instruct",
+  "dtype": "torch.float16",
+  "hook": "counter_causal",
+  "refresh_mode": "chunked",
+  "cache_size": 7966,
+  "chunk_size": 2000,
+  "frozen_size": 34,
+  "recent_size": null,
+  "seed": 0,
+  "run_id": "R-11-full",
+  "config": "configs/r11_full.yaml",
+  "timing": {
+    "wall_sec": 1347.96,
+    "peak_gpu_gb": 24.505,
+    "hook_calls": 2445,
+    "hook_sec": 820.86,
+    "hook_sec_per_call": 0.3357
+  }
+}
