@@ -36,6 +36,8 @@ MATH_RUNS=(
 LH_RUNS=(
   "R-11-full:configs/r11_full.yaml"
   "R-11-fast:configs/r11_fast.yaml"
+  "R-11-none:configs/r11_none.yaml"
+  "R-11-h2o:configs/r11_h2o.yaml"
 )
 RUNS=("${MATH_RUNS[@]}" "${LH_RUNS[@]}")
 

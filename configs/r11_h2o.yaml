@@ -1,0 +1,21 @@
+# R-11-h2o — Llama-3.1-8B, LongHealth (all 400), H2O, cache 8000
+# Paper Table 2 target: n/a — anomaly probe, not a paper number
+#
+# Competing-eviction baseline at the same budget as R-11-full / R-11-fast, so the
+# counter-causal variants are measured against a real alternative rather than only
+# against the no-eviction ceiling.
+#
+# Paper §: for long-context tasks (LongHealth, Qasper, LoCoMo) the task system
+# prompt is kept frozen as sink tokens, for ALL strategies. It "consumes a small
+# number of our J memory slots", which is what --auto_frozen does: frozen_size is
+# read from the task system prompt and subtracted from cache_size.
+# chunk_size left unset => cache_size//4 = 2000. The ledger does not specify it.
+# recent_size omitted on purpose: build_hook applies the upstream default of
+# cache_size//2 for h2o, per README "Key arguments".
+task: longhealth
+model: meta-llama/Llama-3.1-8B-Instruct
+dtype: float16
+hook: h2o
+cache_size: 8000
+auto_frozen: true
+seed: 0

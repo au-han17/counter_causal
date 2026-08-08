@@ -1,0 +1,18 @@
+# R-11-none — Llama-3.1-8B, LongHealth (all 400), full cache (no eviction)
+# Paper Table 2 target: n/a — anomaly probe, not a paper number
+#
+# Upper bound for the R-11 group: what accuracy looks like with nothing evicted.
+# Without it, "counter-causal fast > counter-causal full" has no ceiling to sit under.
+#
+# cache_size deliberately omitted: hook: none performs no eviction, so a budget here
+# would imply a constraint that is never applied.
+#
+# Paper §: for long-context tasks (LongHealth, Qasper, LoCoMo) the task system
+# prompt is kept frozen as sink tokens, for ALL strategies. Kept on for consistency
+# with the rest of the R-11 group, though it has no effect without eviction.
+task: longhealth
+model: meta-llama/Llama-3.1-8B-Instruct
+dtype: float16
+hook: none
+auto_frozen: true
+seed: 0
