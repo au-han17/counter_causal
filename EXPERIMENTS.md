@@ -104,6 +104,7 @@ comparable. Accuracy is unaffected by concurrency.
 | R-09 | 2026-08-08 | main | 0879f87 | Qwen2.5-7B-Instruct | math500 (500) | counter_causal | configs/r09.yaml | 3.13 | done | accuracy=0.7400 | dtype=torch.float16; hook=counter_causal; cache_size=512; chunk_size=256; frozen_size=0; peak=15.024GB; hook=25.053s/1057calls; tf=5.14.1; **DIRTY TREE** |
 | R-10 | 2026-08-08 | main | 0879f87 | Qwen2.5-7B-Instruct | math500 (500) | counter_fast | configs/r10.yaml | 3.13 | done | accuracy=0.7380 | dtype=torch.float16; hook=counter_fast; cache_size=512; chunk_size=256; frozen_size=0; peak=14.624GB; hook=3.503s/1052calls; tf=5.14.1; **DIRTY TREE** |
 | R-11-full | 2026-08-08 | main | 0879f87 | Llama-3.1-8B-Instruct | longhealth (400) | counter_causal | configs/r11_full.yaml | 0.37 | done | accuracy=0.7900 | dtype=torch.float16; hook=counter_causal; cache_size=7966; chunk_size=2000; frozen_size=34; peak=24.505GB; hook=820.86s/2445calls; tf=5.14.1; **DIRTY TREE** |
+| R-11-fast | 2026-08-08 | main | 0879f87 | Llama-3.1-8B-Instruct | longhealth (400) | counter_fast | configs/r11_fast.yaml | 0.23 | done | accuracy=0.8050 | dtype=torch.float16; hook=counter_fast; cache_size=7966; chunk_size=2000; frozen_size=34; peak=20.862GB; hook=72.948s/2445calls; tf=5.14.1; **DIRTY TREE** |
 
 
 ## Per-run template (copy into notes/ or manifest)
