@@ -59,7 +59,7 @@ preflight() {
 
   if ! git config user.email >/dev/null || ! git config user.name >/dev/null; then
     say "FAIL git identity unset. Fix:"
-    say "     git config user.name 'uakhan17'; git config user.email 'khan17wong@gmail.com'"
+    say "     git config user.name 'au-han17'; git config user.email 'khan17wong@gmail.com'"
     ok=1
   else
     say "ok   git identity: $(git config user.name) <$(git config user.email)>"
