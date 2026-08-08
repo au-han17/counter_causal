@@ -31,6 +31,19 @@ makes the fast hook's surprise *ranking* coarser, not finer. R-05/R-10 therefore
 two effects and should not be read as a clean weight-dtype signal; R-01/R-06 (no eviction)
 are the clean comparisons. Scoring dtype left unchanged pending those results.
 
+## Run Harness (R-15)
+Branch `run-harness`, plan `plans/run-harness.md`. Closes the gap between the protocol
+above and what the code could do: `evaluate.py` read no config, wrote no manifest, and
+captured no seed or wall time, so rule 3 was unsatisfiable. Adds `--config/--run_id/--seed`
+plus `runlog.py` (config loader, seeding, GPU-synchronised hook timing, manifest writer).
+
+**Environment floor corrected.** `requirements.txt` pinned `transformers>=4.40.0`, which
+cannot run this code: `hooks.py` uses `DynamicCache.layers` / `DynamicLayer` (added 4.54)
+and `evaluate.py` calls `from_pretrained(dtype=...)` (replaced `torch_dtype` in 4.56).
+Verified by inspecting `cache_utils.py` and `modeling_utils.py` at tags v4.40.0/v4.54.0/
+v4.56.0. Floor raised to `>=4.56.0`; `pyyaml` added. Pin the exact resolved versions on
+the pod and record them in each manifest — `env.transformers` is captured automatically.
+
 ## Ledger
 
 | runID | date | branch | commit | model | dataset (slice) | strategy | config | GPU-h | status | headline result | notes |
@@ -46,6 +59,7 @@ are the clean comparisons. Scoring dtype left unchanged pending those results.
 | R-12 | | main | | Llama-3.1-8B | LongHealth | same | anomaly cache size 9000 | | | | robustness of anomaly |
 | R-13 | | main | | Llama-3.1-8B | LoCoMo multi-hop (282) | five strategies | anomaly cache size 15000 | | | | anomaly: fast > full-cache? H2O collapse? |
 | R-14 | | main | | Llama-3.1-8B | LoCoMo multi-hop (282) | five strategies | adjacent cache size 17000 | | | | robustness |
+| R-15 | 2026-08-08 | run-harness | 5507952 | n/a | n/a | n/a (infrastructure) | plans/run-harness.md | 0 | code done, smoke run pending | config loader + manifest writer; `transformers>=4.40` floor could not run this code, raised to `>=4.56` | adds `--config/--run_id/--seed`, `runlog.py`, `configs/r01.yaml`, `configs/r02.yaml`, `tests/test_runlog.py`. Unit checks 5/5 local; no end-to-end run yet (local env is transformers 4.40, no weights) |
 
 
 ## Per-run template (copy into notes/ or manifest)
