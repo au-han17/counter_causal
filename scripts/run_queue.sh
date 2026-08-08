@@ -7,7 +7,9 @@
 #   bash scripts/run_queue.sh R-06               # one run, output on the terminal
 #   bash scripts/run_queue.sh --finalize         # ledger + commit + push what finished
 #
-# Groups: `math` = R-00-qwen R-06 R-09 R-10, `lh` = R-11-full R-11-fast, `all` = both.
+# Groups: `math` = R-00-qwen R-06 R-09 R-10; `lh` = the R-11 variants;
+# `q1` = Q1-01..03 (layer sweep; use --parallel 2 — each costs ~R-11-full memory);
+# `all` = everything.
 #
 # Parallel mode gives every run its own logs/<runID>.log and prints only one line per
 # state change, so four concurrent runs stay readable. Follow one with:
@@ -39,7 +41,12 @@ LH_RUNS=(
   "R-11-none:configs/r11_none.yaml"
   "R-11-h2o:configs/r11_h2o.yaml"
 )
-RUNS=("${MATH_RUNS[@]}" "${LH_RUNS[@]}")
+Q1_RUNS=(
+  "Q1-01:configs/q1_flip8.yaml"
+  "Q1-02:configs/q1_flip16.yaml"
+  "Q1-03:configs/q1_flip24.yaml"
+)
+RUNS=("${MATH_RUNS[@]}" "${LH_RUNS[@]}" "${Q1_RUNS[@]}")
 
 say() { echo "[$(date +%H:%M:%S)] $*" | tee -a "$LOG"; }
 
@@ -160,6 +167,7 @@ while [ $# -gt 0 ]; do
     --parallel)  shift; PARALLEL="${1:-1}" ;;
     math)        for e in "${MATH_RUNS[@]}"; do WANTED+=("${e%%:*}"); done ;;
     lh)          for e in "${LH_RUNS[@]}";   do WANTED+=("${e%%:*}"); done ;;
+    q1)          for e in "${Q1_RUNS[@]}";   do WANTED+=("${e%%:*}"); done ;;
     all)         for e in "${RUNS[@]}";      do WANTED+=("${e%%:*}"); done ;;
     -*)          say "unknown option: $1"; exit 2 ;;
     *)           WANTED+=("$1") ;;

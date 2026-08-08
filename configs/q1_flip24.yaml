@@ -1,0 +1,10 @@
+# Q1-03 — Llama-3.1-8B, LongHealth (all 400), counter-causal (split ℓ=24), cache 8000
+# Layers 0-23 ordinary causal, layers 24-31 counter-causal. See configs/q1_flip8.yaml.
+task: longhealth
+model: meta-llama/Llama-3.1-8B-Instruct
+dtype: float16
+hook: counter_split
+flip_from_layer: 24
+cache_size: 8000
+auto_frozen: true
+seed: 0

@@ -55,7 +55,7 @@ def build_cells(run_id, metrics, manifest, failed_reason):
 
     notes = []
     if metrics:
-        for k in ("dtype", "hook", "cache_size", "chunk_size", "frozen_size"):
+        for k in ("dtype", "hook", "flip_from_layer", "cache_size", "chunk_size", "frozen_size"):
             if metrics.get(k) not in (None, ""):
                 notes.append(f"{k}={metrics[k]}")
     if timing.get("peak_gpu_gb"):

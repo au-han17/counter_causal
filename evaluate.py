@@ -19,6 +19,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 from runlog import load_config, seed_everything, TimedHook, RunRecorder
+from q1_hooks import counter_causal_split_hook
 
 from hooks import (
     sliding_window_hook,
@@ -57,6 +58,10 @@ def build_hook(args, model):
     if args.hook == "counter_fast":
         recent = rs if rs is not None else 0
         return counter_causal_fast_hook(model, cache_size=cs, recent_size=recent, frozen_size=fs)
+    if args.hook == "counter_split":
+        recent = rs if rs is not None else 0
+        return counter_causal_split_hook(model, flip_from_layer=args.flip_from_layer,
+                                         cache_size=cs, recent_size=recent, frozen_size=fs)
     return None  # "none" — full cache, no eviction
 
 
@@ -79,7 +84,10 @@ def main():
     parser.add_argument("--dtype", choices=["float16", "bfloat16", "float32"], default="float16",
                         help="Weight dtype. Default float16 matches upstream; both target "
                              "checkpoints are natively bfloat16")
-    parser.add_argument("--hook", choices=["none", "sliding", "importance", "h2o", "counter_causal", "counter_fast"], default="none")
+    parser.add_argument("--hook", choices=["none", "sliding", "importance", "h2o", "counter_causal", "counter_fast", "counter_split"], default="none")
+    parser.add_argument("--flip_from_layer", type=int, default=None,
+                        help="counter_split: first layer index scored with the counter-causal "
+                             "mask; layers below it run with the ordinary causal mask")
     parser.add_argument("--refresh_mode", choices=["chunked", "prefill_end"], default="chunked")
     parser.add_argument("--frozen_size", type=int, default=0, help="Leading tokens never evicted (e.g. system prompt length)")
     parser.add_argument("--auto_frozen", action="store_true", help="Set frozen_size automatically from the task system prompt")
@@ -104,6 +112,8 @@ def main():
     args = parser.parse_args()
     if args.task is None:
         parser.error("--task is required (pass it directly or set it in --config)")
+    if args.hook == "counter_split" and args.flip_from_layer is None:
+        parser.error("--hook counter_split requires --flip_from_layer")
 
     seed_everything(args.seed)
 
@@ -121,6 +131,8 @@ def main():
     print(f"  model:        {args.model}")
     print(f"  dtype:        {args.dtype}")
     print(f"  hook:         {args.hook}")
+    if args.flip_from_layer is not None:
+        print(f"  flip_layer:   {args.flip_from_layer}")
     print(f"  cache_size:   {args.cache_size}")
     print(f"  chunk_size:   {args.chunk_size}")
     print(f"  frozen_size:  {args.frozen_size}")
@@ -212,6 +224,7 @@ def main():
         "model": args.model,
         "dtype": str(model.dtype),
         "hook": args.hook,
+        "flip_from_layer": args.flip_from_layer,
         "refresh_mode": args.refresh_mode,
         "cache_size": args.cache_size,
         "chunk_size": args.chunk_size,

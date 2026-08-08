@@ -1,0 +1,13 @@
+# Q1-01 — Llama-3.1-8B, LongHealth (all 400), counter-causal (split ℓ=8), cache 8000
+# Layers 0-7 ordinary causal, layers 8-31 counter-causal.
+# Endpoints: R-11-full = flip at 0 (exact); R-11-fast ≈ flip at 31 (last layer only,
+# plus FFN-skip / captured-hidden / fp16-logit approximations — see plan).
+# Everything except the hook matches the R-11 group: fp16, cache 8000, auto_frozen.
+task: longhealth
+model: meta-llama/Llama-3.1-8B-Instruct
+dtype: float16
+hook: counter_split
+flip_from_layer: 8
+cache_size: 8000
+auto_frozen: true
+seed: 0
