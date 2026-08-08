@@ -60,6 +60,28 @@ Every `configs/*.yaml` is checked against the live argparse definition by
 everywhere so `build_hook` applies the upstream defaults documented in README
 "Key arguments": 0, or `cache_size//2` for h2o.
 
+## Scope reduction (2026-08-09)
+The ledger below is the plan as pre-registered. Under a fixed time budget the emphasis
+moved to Q1–Q3, so only a representative subset of the reproduction was executed:
+
+| runID | model | strategy | dtype | purpose |
+|-------|-------|----------|-------|---------|
+| R-00-qwen | Qwen2.5-7B | full | bf16 | weight-dtype control vs R-06 |
+| R-06 | Qwen2.5-7B | full | fp16 | upstream baseline, target .766 |
+| R-09 | Qwen2.5-7B | counter-causal (full) | fp16 | target .744 |
+| R-10 | Qwen2.5-7B | counter-causal (fast) | fp16 | target .736 |
+| R-11-full | Llama-3.1-8B | counter-causal (full) | fp16 | anomaly probe, cache 8000 |
+| R-11-fast | Llama-3.1-8B | counter-causal (fast) | fp16 | anomaly probe, cache 8000 |
+
+Rows with no config file are deferred, not abandoned. R-06/R-09/R-10 give the method
+comparison on one model; R-00-qwen isolates weight dtype against R-06; R-11 tests the
+prefill-heavy anomaly. Configs for the deferred runs are recoverable from git history
+(deleted at commit time of this note).
+
+These runs were executed concurrently (4 MATH500, then 2 LongHealth), so the `wall_sec`
+and `peak_gpu_gb` fields in their manifests reflect contended GPU time and are not
+comparable. Accuracy is unaffected by concurrency.
+
 ## Ledger
 
 | runID | date | branch | commit | model | dataset (slice) | strategy | config | GPU-h | status | headline result | notes |

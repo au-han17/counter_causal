@@ -1,55 +1,43 @@
 #!/usr/bin/env bash
-# Sequential run queue: execute -> update ledger -> commit -> push, one run at a time.
+# Run queue for the reduced reproduction set (6 runs).
 #
-#   bash scripts/run_queue.sh              # everything still outstanding
-#   bash scripts/run_queue.sh R-00-llama   # just these
-#   bash scripts/run_queue.sh --preflight  # checks only, run nothing
-#   bash scripts/run_queue.sh --no-push    # commit locally, never push
+#   bash scripts/run_queue.sh --preflight        # checks only
+#   bash scripts/run_queue.sh --parallel 4 math  # the 4 MATH500 runs at once
+#   bash scripts/run_queue.sh --parallel 2 lh    # the 2 LongHealth runs at once
+#   bash scripts/run_queue.sh R-06               # one run, output on the terminal
+#   bash scripts/run_queue.sh --finalize         # ledger + commit + push what finished
 #
-# --no-push still commits every run, so nothing is lost to a crash — only to losing the
-# pod itself. Push the lot afterwards with:  git push origin main
+# Groups: `math` = R-00-qwen R-06 R-09 R-10, `lh` = R-11-full R-11-fast, `all` = both.
 #
-# Resumable: any run with results/<runID>/metrics.json already present is skipped, so a
-# reclaimed pod costs at most the in-flight run. A failing run is logged and the queue
-# continues. Runs are strictly sequential — the manifests record wall time and peak GPU
-# memory, which concurrent runs would make meaningless.
+# Parallel mode gives every run its own logs/<runID>.log and prints only one line per
+# state change, so four concurrent runs stay readable. Follow one with:
+#     tail -f logs/R-06.log
+#
+# Git is touched only by --finalize, which runs sequentially after the streams finish —
+# concurrent commits would collide on index.lock. Resumable: a run whose
+# results/<runID>/metrics.json exists is skipped.
+#
+# wall_sec / peak_gpu_gb are still recorded but are NOT meaningful under --parallel,
+# since runs contend for the same GPU. Accuracy is unaffected.
 
-set -uo pipefail   # deliberately not -e: one bad run must not kill the queue
+set -uo pipefail
 
 cd "$(dirname "$0")/.." || exit 1
 PY="${PYTHON:-$(command -v python || command -v python3)}"
 mkdir -p logs
-LOG="logs/queue-$(date +%Y%m%d-%H%M%S).log"
+LOG="logs/queue-$(date +%Y%m%d-%H%M%S)-$$.log"
 
-# runID:config — R-00-llama first as the behaviour check
-RUNS=(
-  "R-00-llama:configs/r00_llama.yaml"
+MATH_RUNS=(
   "R-00-qwen:configs/r00_qwen.yaml"
-  "R-01:configs/r01.yaml"
-  "R-02:configs/r02.yaml"
-  "R-03:configs/r03.yaml"
-  "R-04:configs/r04.yaml"
-  "R-05:configs/r05.yaml"
   "R-06:configs/r06.yaml"
-  "R-07:configs/r07.yaml"
-  "R-08:configs/r08.yaml"
   "R-09:configs/r09.yaml"
   "R-10:configs/r10.yaml"
+)
+LH_RUNS=(
   "R-11-full:configs/r11_full.yaml"
   "R-11-fast:configs/r11_fast.yaml"
-  "R-12-full:configs/r12_full.yaml"
-  "R-12-fast:configs/r12_fast.yaml"
-  "R-13-full:configs/r13_full.yaml"
-  "R-13-sliding:configs/r13_sliding.yaml"
-  "R-13-h2o:configs/r13_h2o.yaml"
-  "R-13-counter:configs/r13_counter.yaml"
-  "R-13-fast:configs/r13_fast.yaml"
-  "R-14-full:configs/r14_full.yaml"
-  "R-14-sliding:configs/r14_sliding.yaml"
-  "R-14-h2o:configs/r14_h2o.yaml"
-  "R-14-counter:configs/r14_counter.yaml"
-  "R-14-fast:configs/r14_fast.yaml"
 )
+RUNS=("${MATH_RUNS[@]}" "${LH_RUNS[@]}")
 
 say() { echo "[$(date +%H:%M:%S)] $*" | tee -a "$LOG"; }
 
@@ -66,27 +54,23 @@ preflight() {
   fi
 
   if [ "$PUSH" = "0" ]; then
-    say "skip push auth (--no-push); results commit locally only"
+    say "skip push auth (--no-push)"
   elif git push --dry-run origin HEAD >>"$LOG" 2>&1; then
     say "ok   push auth"
   else
-    say "FAIL cannot push. Either bake a token into the remote:"
+    say "FAIL cannot push. Bake a token into the remote, or pass --no-push:"
     say "     git remote set-url origin https://<TOKEN>@github.com/au-han17/counter_causal.git"
-    say "     or re-run with --no-push to commit locally and push in the morning."
     ok=1
   fi
 
-  if [ -n "$(git status --porcelain)" ]; then
-    say "WARN working tree dirty — manifests will record dirty:true"
-  else
-    say "ok   working tree clean"
-  fi
+  [ -n "$(git status --porcelain)" ] && say "WARN tree dirty — manifests record dirty:true" \
+                                     || say "ok   working tree clean"
 
-  say "     checking torch/cuda/yaml — first import on a fresh pod can take 30-90s ..."
+  say "     checking torch/cuda/yaml — first import can take 30-90s ..."
   if $PY -c "import torch,yaml,transformers; assert torch.cuda.is_available()" 2>>"$LOG"; then
     say "ok   torch+cuda+yaml: $($PY -c 'import torch;print(torch.cuda.get_device_name(0))')"
   else
-    say "FAIL torch/cuda/yaml import or no GPU visible"
+    say "FAIL torch/cuda/yaml import, or no GPU visible"
     ok=1
   fi
 
@@ -97,70 +81,129 @@ preflight() {
     ok=1
   fi
 
+  say "     HF_HOME=${HF_HOME:-<unset, will use container disk!>}"
   return $ok
 }
 
 run_one() {
-  local id="$1" cfg="$2"
+  local id="$1" cfg="$2" runlog="logs/$1.log"
 
   if [ -f "results/$id/metrics.json" ]; then
     say "skip $id (already complete)"
     return 0
   fi
 
-  say "---- $id  ($cfg) ----"
-  local t0=$SECONDS
-  if $PY evaluate.py --config "$cfg" --run_id "$id" 2>&1 | tee -a "$LOG"; then
-    say "done $id in $((SECONDS - t0))s"
-    $PY scripts/ledger_update.py "$id" 2>&1 | tee -a "$LOG"
+  local t0=$SECONDS failed=0
+  say "START $id  ($cfg)  -> $runlog"
+
+  if [ "$QUIET" = "1" ]; then
+    $PY evaluate.py --config "$cfg" --run_id "$id" >"$runlog" 2>&1 || failed=1
   else
-    say "FAIL $id after $((SECONDS - t0))s — continuing"
-    $PY scripts/ledger_update.py "$id" --failed "run exited non-zero; see $LOG" 2>&1 | tee -a "$LOG"
+    $PY evaluate.py --config "$cfg" --run_id "$id" 2>&1 | tee "$runlog"
+    failed=${PIPESTATUS[0]}
   fi
 
-  git add results EXPERIMENTS.md 2>/dev/null
-  if git diff --cached --quiet; then
-    say "warn $id produced nothing to commit"
-    return 0
-  fi
-  git commit -q -m "[$id] run result" && say "committed $id"
-  if [ "$PUSH" = "0" ]; then
-    say "not pushed ($id) — --no-push"
-  elif git push -q origin HEAD 2>>"$LOG"; then
-    say "pushed $id"
+  if [ "$failed" = "0" ]; then
+    local score
+    score=$($PY -c "import json;d=json.load(open('results/$id/metrics.json'));print(f\"{d['score_key']}={d['score']:.4f}\")" 2>/dev/null || echo "score=?")
+    say "DONE  $id  $score  ($((SECONDS - t0))s)"
   else
-    say "WARN push failed for $id — results are committed locally only"
+    say "FAIL  $id after $((SECONDS - t0))s — see $runlog"
+  fi
+
+  if [ "$COMMIT" = "1" ]; then
+    commit_one "$id" "$failed"
+  fi
+  return 0
+}
+
+commit_one() {
+  local id="$1" failed="${2:-0}"
+  if [ "$failed" != "0" ]; then
+    $PY scripts/ledger_update.py "$id" --failed "run exited non-zero; see logs/$id.log" >>"$LOG" 2>&1
+  else
+    $PY scripts/ledger_update.py "$id" >>"$LOG" 2>&1
+  fi
+  git add results EXPERIMENTS.md 2>/dev/null
+  git diff --cached --quiet && return 0
+  git commit -q -m "[$id] run result" && say "committed $id"
+  if [ "$PUSH" = "1" ]; then
+    git push -q origin HEAD 2>>"$LOG" && say "pushed $id" || say "WARN push failed for $id"
   fi
 }
 
+finalize() {
+  say "=== finalize: ledger + commit + push for every completed run ==="
+  local n=0
+  for entry in "${RUNS[@]}"; do
+    local id="${entry%%:*}"
+    [ -f "results/$id/metrics.json" ] || continue
+    commit_one "$id" 0 && n=$((n + 1))
+  done
+  say "finalize done ($n run(s) considered)"
+  grep -E "^\| R-" EXPERIMENTS.md | tee -a "$LOG"
+}
+
 # ---- entry ----
-PUSH=1
-PREFLIGHT_ONLY=0
+PUSH=1; COMMIT=1; QUIET=0; PARALLEL=1
+PREFLIGHT_ONLY=0; FINALIZE_ONLY=0
 WANTED=()
-for a in "$@"; do
-  case "$a" in
+while [ $# -gt 0 ]; do
+  case "$1" in
     --no-push)   PUSH=0 ;;
+    --no-commit) COMMIT=0 ;;
+    --quiet)     QUIET=1 ;;
     --preflight) PREFLIGHT_ONLY=1 ;;
-    -*)          say "unknown option: $a"; exit 2 ;;
-    *)           WANTED+=("$a") ;;
+    --finalize)  FINALIZE_ONLY=1 ;;
+    --parallel)  shift; PARALLEL="${1:-1}" ;;
+    math)        for e in "${MATH_RUNS[@]}"; do WANTED+=("${e%%:*}"); done ;;
+    lh)          for e in "${LH_RUNS[@]}";   do WANTED+=("${e%%:*}"); done ;;
+    all)         for e in "${RUNS[@]}";      do WANTED+=("${e%%:*}"); done ;;
+    -*)          say "unknown option: $1"; exit 2 ;;
+    *)           WANTED+=("$1") ;;
   esac
+  shift
 done
 
 if [ "$PREFLIGHT_ONLY" = "1" ]; then
   if preflight; then say "preflight OK"; exit 0; else say "preflight FAILED"; exit 1; fi
 fi
+if [ "$FINALIZE_ONLY" = "1" ]; then finalize; exit 0; fi
+
+# Parallel streams must not touch git; --finalize does it afterwards, sequentially.
+if [ "$PARALLEL" -gt 1 ]; then
+  COMMIT=0
+  QUIET=1
+  say "parallel=$PARALLEL — per-run logs, git deferred to the finalize pass"
+fi
 
 preflight || { say "preflight FAILED — aborting before any GPU time is spent"; exit 1; }
-[ "$PUSH" = "0" ] && say "NOTE --no-push: run 'git push origin main' once you are back"
 
+QUEUE=()
 if [ ${#WANTED[@]} -gt 0 ]; then
   for want in "${WANTED[@]}"; do
     for entry in "${RUNS[@]}"; do
-      [ "${entry%%:*}" = "$want" ] && run_one "${entry%%:*}" "${entry#*:}"
+      [ "${entry%%:*}" = "$want" ] && QUEUE+=("$entry")
     done
   done
 else
-  for entry in "${RUNS[@]}"; do
+  QUEUE=("${RUNS[@]}")
+fi
+
+say "queue: ${#QUEUE[@]} run(s), parallel=$PARALLEL"
+
+if [ "$PARALLEL" -gt 1 ]; then
+  running=0
+  for entry in "${QUEUE[@]}"; do
+    run_one "${entry%%:*}" "${entry#*:}" &
+    running=$((running + 1))
+    if [ "$running" -ge "$PARALLEL" ]; then wait -n; running=$((running - 1)); fi
+  done
+  wait
+  say "all streams finished — finalizing"
+  finalize
+else
+  for entry in "${QUEUE[@]}"; do
     run_one "${entry%%:*}" "${entry#*:}"
   done
 fi
