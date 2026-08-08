@@ -102,6 +102,7 @@ comparable. Accuracy is unaffected by concurrency.
 | R-15 | 2026-08-08 | run-harness | 5507952 | n/a | n/a | n/a (infrastructure) | plans/run-harness.md | 0 | code done, smoke run pending | config loader + manifest writer; `transformers>=4.40` floor could not run this code, raised to `>=4.56` | adds `--config/--run_id/--seed`, `runlog.py`, `configs/r01.yaml`, `configs/r02.yaml`, `tests/test_runlog.py`. Unit checks 5/5 local; no end-to-end run yet (local env is transformers 4.40, no weights) |
 | R-06 | 2026-08-08 | main | 0879f87 | Qwen2.5-7B-Instruct | math500 (500) | none | configs/r06.yaml | 3.17 | done | accuracy=0.7600 | dtype=torch.float16; hook=none; cache_size=512; chunk_size=128; frozen_size=0; peak=14.375GB; tf=5.14.1; **DIRTY TREE** |
 | R-09 | 2026-08-08 | main | 0879f87 | Qwen2.5-7B-Instruct | math500 (500) | counter_causal | configs/r09.yaml | 3.13 | done | accuracy=0.7400 | dtype=torch.float16; hook=counter_causal; cache_size=512; chunk_size=256; frozen_size=0; peak=15.024GB; hook=25.053s/1057calls; tf=5.14.1; **DIRTY TREE** |
+| R-10 | 2026-08-08 | main | 0879f87 | Qwen2.5-7B-Instruct | math500 (500) | counter_fast | configs/r10.yaml | 3.13 | done | accuracy=0.7380 | dtype=torch.float16; hook=counter_fast; cache_size=512; chunk_size=256; frozen_size=0; peak=14.624GB; hook=3.503s/1052calls; tf=5.14.1; **DIRTY TREE** |
 
 
 ## Per-run template (copy into notes/ or manifest)
