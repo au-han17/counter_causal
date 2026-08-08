@@ -70,7 +70,7 @@ everywhere so `build_hook` applies the upstream defaults documented in README
 | R-01 | | main | | Llama-3.1-8B | MATH500 | full | configs/r01.yaml | | | | env sanity anchor; target ≈.488 |
 | R-02 | | main | | Llama-3.1-8B | MATH500 | sliding | configs/r02.yaml | | | | target ≈.458 |
 | R-03 | | main | | Llama-3.1-8B | MATH500 | H2O | configs/r03.yaml | | | | target ≈.464 |
-| R-04 | | main | | Llama-3.1-8B | MATH500 | counter-causal (full) | configs/r04.yaml | | | | target ≈.482; enable --dump_scores |
+| R-04 | | main | | Llama-3.1-8B | MATH500 | counter-causal (full) | configs/r04.yaml | | | | target ≈.482|
 | R-05 | | main | | Llama-3.1-8B | MATH500 | counter-causal (fast) | configs/r05.yaml | | | | target ≈.480 |
 | R-06..R-10 | | main | | Qwen2.5-7B | MATH500 | same five | configs/r06..r10.yaml | | | | targets .766/.692/.762/.744/.736 |
 | R-11 | | main | | Llama-3.1-8B | LongHealth (all 400) | counter-causal (full) vs (fast) | configs/r11_{full,fast}.yaml (cache 8000) | | | | anomaly: counter-causal fast > counter-causal full? |
