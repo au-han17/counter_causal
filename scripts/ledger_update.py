@@ -108,9 +108,13 @@ def apply(run_id, cells, ledger=LEDGER):
             continue
         c = _cells(line)
         if len(c) == COLUMNS and c[0] == run_id:
-            # Preserve any hand-written notes by appending, not replacing.
-            if c[11] and c[11] not in ordered[11]:
-                ordered[11] = f"{ordered[11]}; {c[11]}" if ordered[11] else c[11]
+            # Merge notes at fragment level so repeated finalize runs stay
+            # idempotent: hand-written fragments survive, rebuilt ones dedupe.
+            merged = ordered[11].split("; ") if ordered[11] else []
+            for frag in c[11].split("; "):
+                if frag and frag not in merged:
+                    merged.append(frag)
+            ordered[11] = "; ".join(merged)
             lines[i] = _row(ordered)
             _write(ledger, lines)
             return "updated"
