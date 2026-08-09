@@ -17,12 +17,13 @@ plan (`plans/`), a config (`configs/`), a manifest with commit/seed/env
    backward-conditional referee, the full score is weakly faithful — and most of that
    is word frequency. The deployed fast score does not track a backward conditional at
    all. Two scores that agree with each other at only ρ = 0.32 evict equally well.
-4. **Fossil-K/V drift is real, monotone, and ~3× worse for counter-causal than for a
-   shallow baseline — but small (Q3).** Practical-vs-oracle rank agreement stays ≥ .975
-   through 11+ refresh cycles; ~10% of CC's per-cycle eviction decisions flip vs ~3%
-   for Importance, against representations that barely move (cos ≥ .99). The deep
-   scoring pass amplifies representation noise; the damage stays well inside margins
-   that Q1 showed do not affect accuracy.
+4. **Fossil-K/V drift is real, monotone, and compounds ~2–3× faster for
+   counter-causal than for a shallow baseline — but stays small (Q3).**
+   Practical-vs-oracle rank agreement stays ≥ .979 through 11+ refresh cycles; ~10%
+   of CC's per-cycle eviction decisions flip vs ~4% for Importance, against
+   representations that barely move (cos ≥ .99). The deep scoring pass amplifies
+   representation noise, increasingly with cycle count; the damage stays well inside
+   margins that Q1 showed do not affect accuracy.
 
 **Synthesis:** the eviction utility of counter-causal scoring is not explained by
 backward-conditional faithfulness. Eviction succeeds because "keep rare/surprising,
@@ -126,20 +127,24 @@ the first eviction the two caches are bit-identical; cycle-1 agreement was exact
 | cycle band | CC Spearman | Imp Spearman | | evicted-set agreement (chance ≈ 11%) |
 |---|---|---|---|---|
 | 1 (sanity) | 1.000 | 1.000 | | CC ≈ 90% of 1024 choices match oracle |
-| 2–5 | .991 | .996 | | Imp ≈ 97% |
-| 6–10 | .985 | .992 | | |
-| 11+ | .975 | .988 | | |
+| 2–5 | .992 | .994 | | Imp ≈ 96% |
+| 6–10 | .983 | .992 | | |
+| 11+ | .979 | .989 | | |
 
 - **Drift is real and monotone** — every band declines, no plateau within the
   measured horizon.
-- **It is method-tilted ≈ 2–3×:** CC loses 2.1× more rank correlation and flips ~3×
-  more eviction decisions (~10% vs ~3.4% per cycle) than Importance *on the same
-  fossil cache, same trajectory*.
+- **It is method-tilted, and the tilt compounds:** the two methods are near-equal at
+  cycles 2–5 (.992 vs .994), then separate — by cycles 11+ CC has lost 1.9× more rank
+  correlation and flips ~2.6× more eviction decisions (~10% vs ~4% per cycle) than
+  Importance *on the same fossil cache, same trajectory*.
 - **Mechanism:** representations barely move — fossil-vs-library cosine ≥ .99 at
-  layers 16 and 31, with new cohorts only slightly worse (.988/.994). The 32-layer
+  layers 16 and 31, with new cohorts only slightly worse (.987/.993). The 32-layer
   flipped scoring pass amplifies that whisper of noise into decision changes; the
   one-layer Importance dot-product does not. Drift contaminates the deep measurement
   instrument, not the cache itself.
+- Figure: `results/Q3-01/figure.png` — per-cycle median across the 5 conversations,
+  IQR band; the band's tail (highest cycles) rests on the 1–2 longest conversations
+  only. Chance line: independent random evicted sets overlap at e²/n → Jaccard ≈ .11.
 - **Bounded by Q1:** practical-vs-oracle eviction agreement (~90%) is far tighter
   than the fast-vs-full score agreement (ρ ≈ .32) that already produced identical
   accuracy. Downstream impact at these settings is therefore expected to be nil; the
