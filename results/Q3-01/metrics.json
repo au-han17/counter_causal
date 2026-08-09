@@ -1,0 +1,46 @@
+{
+  "score_key": "mean_spearman_cc_practical_vs_oracle_cycle2plus",
+  "score": 0.9828,
+  "model": "meta-llama/Llama-3.1-8B-Instruct",
+  "dtype": "float16",
+  "hook": "q3-drift",
+  "cache_size": 4096,
+  "chunk_size": 1024,
+  "summary": {
+    "cc": {
+      "spearman_cycle1": 1.0,
+      "spearman_cycles_2_5": 0.9922,
+      "spearman_cycles_6_10": 0.983,
+      "spearman_cycles_11plus": 0.9787,
+      "jac_evict_cycles_2plus": 0.8239
+    },
+    "imp": {
+      "spearman_cycle1": 1.0,
+      "spearman_cycles_2_5": 0.9935,
+      "spearman_cycles_6_10": 0.9917,
+      "spearman_cycles_11plus": 0.9888,
+      "jac_evict_cycles_2plus": 0.9275
+    },
+    "cos_k_mid_last_cycle_bands": {
+      "l16": {
+        "cycle1": 1.0,
+        "cycles_11plus": 0.9925,
+        "newcohort_cycle1": 1.0,
+        "newcohort_cycles_11plus": 0.9871
+      },
+      "l31": {
+        "cycle1": 1.0,
+        "cycles_11plus": 0.996,
+        "newcohort_cycle1": 1.0,
+        "newcohort_cycles_11plus": 0.9934
+      }
+    }
+  },
+  "n_conversations": 5,
+  "n_cycles_total": 97,
+  "run_id": "Q3-01",
+  "timing": {
+    "wall_sec": 153.87,
+    "peak_gpu_gb": 20.269
+  }
+}
