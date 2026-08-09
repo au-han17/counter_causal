@@ -107,7 +107,7 @@ comparable. Accuracy is unaffected by concurrency.
 | R-11-fast | 2026-08-08 | main | 0879f87 | Llama-3.1-8B-Instruct | longhealth (400) | counter_fast | configs/r11_fast.yaml | 0.23 | done | accuracy=0.8050 | dtype=torch.float16; hook=counter_fast; cache_size=7966; chunk_size=2000; frozen_size=34; peak=20.862GB; hook=72.948s/2445calls; tf=5.14.1; **DIRTY TREE** |
 | R-11-none | 2026-08-08 | main | ea44d71 | Llama-3.1-8B-Instruct | longhealth (400) | none | configs/r11_none.yaml | 0.21 | done | accuracy=0.8100 | dtype=torch.float16; hook=none; cache_size=4062; chunk_size=1024; frozen_size=34; peak=17.113GB; tf=5.14.1; **DIRTY TREE** |
 | R-11-h2o | 2026-08-08 | main | ea44d71 | Llama-3.1-8B-Instruct | longhealth (400) | h2o | configs/r11_h2o.yaml | 0.25 | done | accuracy=0.7750 | dtype=torch.float16; hook=h2o; cache_size=7966; chunk_size=2000; frozen_size=34; peak=18.556GB; hook=247.131s/2445calls; tf=5.14.1; **DIRTY TREE** |
-| Q2-01 | | q2-faithfulness | | Qwen2.5-7B | R-00-qwen pred_raw (50 seqs) | counter-causal full+fast vs ModernBERT referee | configs/q2_faithfulness.yaml | | queued | | word-level Spearman; controls: fwd ceiling, freq partial, direction |
+| Q2-01 | 2026-08-09 | q2-faithfulness | fea2965 | Qwen2.5-7B-Instruct | q2-faithfulness (50) | q2-faithfulness | configs/q2_faithfulness.yaml | 0.01 | done | mean_spearman_full_logit_vs_referee_bwd=0.0967 | dtype=bfloat16; hook=q2-faithfulness; peak=62.995GB; tf=5.14.1; **DIRTY TREE**; word-level Spearman; controls: fwd ceiling, freq partial, direction |
 
 
 ## Per-run template (copy into notes/ or manifest)

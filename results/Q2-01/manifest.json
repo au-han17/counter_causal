@@ -1,0 +1,48 @@
+{
+  "run_id": "Q2-01",
+  "config_path": "configs/q2_faithfulness.yaml",
+  "command": "q2_faithfulness.py --config configs/q2_faithfulness.yaml --run_id Q2-01",
+  "regeneration_command": "python q2_faithfulness.py --config configs/q2_faithfulness.yaml --run_id Q2-01",
+  "seed": 0,
+  "git": {
+    "commit": "fea29651f3b01adff3dc738e697210ad3b52997d",
+    "commit_short": "fea2965",
+    "branch": "q2-faithfulness",
+    "dirty": true
+  },
+  "env": {
+    "python": "3.12.13",
+    "platform": "Linux-6.8.0-90-generic-x86_64-with-glibc2.35",
+    "hostname": "d1c97b3b6634",
+    "torch": "2.10.0+cu128",
+    "transformers": "5.14.1",
+    "cuda": "12.8",
+    "cudnn": 91002,
+    "gpus": [
+      {
+        "name": "NVIDIA H100 80GB HBM3",
+        "total_memory_gb": 79.18,
+        "capability": "9.0"
+      }
+    ]
+  },
+  "timing": {
+    "wall_sec": 28.62,
+    "peak_gpu_gb": 62.995
+  },
+  "dataset_slice": {
+    "task": "q2-faithfulness",
+    "source_dump": "results/R-00-qwen/raw/generations.jsonl.gz",
+    "n_samples": 50,
+    "min_tokens": 128,
+    "max_tokens": 2048,
+    "max_words_per_seq": 400
+  },
+  "raw": {
+    "path": "results/Q2-01/raw/generations.jsonl.gz",
+    "sha256": "8663e9b995d44383d917bf532d3d8544b93d528424560e598458cc446fae8ee4",
+    "bytes": 8918,
+    "megabytes": 0.01,
+    "committable": true
+  }
+}

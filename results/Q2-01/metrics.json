@@ -1,0 +1,115 @@
+{
+  "score_key": "mean_spearman_full_logit_vs_referee_bwd",
+  "score": 0.0967,
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "referee": "answerdotai/ModernBERT-base",
+  "dtype": "bfloat16",
+  "hook": "q2-faithfulness",
+  "summary": {
+    "rho_full_bwd": {
+      "mean": 0.0967,
+      "median": 0.0908,
+      "std": 0.0815,
+      "frac_positive": 0.9,
+      "n": 50
+    },
+    "rho_fast_bwd": {
+      "mean": 0.0152,
+      "median": 0.0448,
+      "std": 0.1464,
+      "frac_positive": 0.58,
+      "n": 50
+    },
+    "rho_full_logprob_bwd": {
+      "mean": 0.1476,
+      "median": 0.1407,
+      "std": 0.0996,
+      "frac_positive": 0.94,
+      "n": 50
+    },
+    "rho_fast_logprob_bwd": {
+      "mean": -0.0344,
+      "median": -0.0225,
+      "std": 0.1353,
+      "frac_positive": 0.44,
+      "n": 50
+    },
+    "rho_ceiling_fwd": {
+      "mean": 0.3479,
+      "median": 0.3402,
+      "std": 0.0881,
+      "frac_positive": 1.0,
+      "n": 50
+    },
+    "rho_full_reffwd": {
+      "mean": 0.0359,
+      "median": 0.0556,
+      "std": 0.1012,
+      "frac_positive": 0.66,
+      "n": 50
+    },
+    "rho_fast_reffwd": {
+      "mean": -0.0016,
+      "median": -0.0304,
+      "std": 0.1078,
+      "frac_positive": 0.42,
+      "n": 50
+    },
+    "rho_full_freq": {
+      "mean": -0.1993,
+      "median": -0.2219,
+      "std": 0.1542,
+      "frac_positive": 0.08,
+      "n": 50
+    },
+    "rho_bwd_freq": {
+      "mean": -0.2848,
+      "median": -0.2612,
+      "std": 0.1254,
+      "frac_positive": 0.0,
+      "n": 50
+    },
+    "partial_full_bwd_freq": {
+      "mean": 0.0387,
+      "median": 0.0254,
+      "std": 0.0804,
+      "frac_positive": 0.7,
+      "n": 50
+    },
+    "partial_fast_bwd_freq": {
+      "mean": -0.0452,
+      "median": -0.024,
+      "std": 0.1288,
+      "frac_positive": 0.36,
+      "n": 50
+    },
+    "rho_full_fast": {
+      "mean": 0.3242,
+      "median": 0.3383,
+      "std": 0.1171,
+      "frac_positive": 0.98,
+      "n": 50
+    },
+    "rho_full_bwd_sumref": {
+      "mean": 0.1246,
+      "median": 0.1393,
+      "std": 0.1092,
+      "frac_positive": 0.82,
+      "n": 50
+    },
+    "rho_fullmax_bwd": {
+      "mean": 0.1103,
+      "median": 0.0926,
+      "std": 0.0894,
+      "frac_positive": 0.88,
+      "n": 50
+    }
+  },
+  "n_seqs": 50,
+  "n_words_total": 11803,
+  "run_id": "Q2-01",
+  "timing": {
+    "wall_sec": 28.62,
+    "peak_gpu_gb": 62.995
+  }
+}
