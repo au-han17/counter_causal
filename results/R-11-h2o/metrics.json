@@ -1,0 +1,23 @@
+{
+  "score_key": "accuracy",
+  "score": 0.775,
+  "task": "longhealth",
+  "model": "meta-llama/Llama-3.1-8B-Instruct",
+  "dtype": "torch.float16",
+  "hook": "h2o",
+  "refresh_mode": "chunked",
+  "cache_size": 7966,
+  "chunk_size": 2000,
+  "frozen_size": 34,
+  "recent_size": null,
+  "seed": 0,
+  "run_id": "R-11-h2o",
+  "config": "configs/r11_h2o.yaml",
+  "timing": {
+    "wall_sec": 890.13,
+    "peak_gpu_gb": 18.556,
+    "hook_calls": 2445,
+    "hook_sec": 247.131,
+    "hook_sec_per_call": 0.1011
+  }
+}

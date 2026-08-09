@@ -87,7 +87,7 @@ comparable. Accuracy is unaffected by concurrency.
 | runID | date | branch | commit | model | dataset (slice) | strategy | config | GPU-h | status | headline result | notes |
 |-------|------|--------|--------|-------|-----------------|----------|--------|-------|--------|-----------------|-------|
 | R-00 | 2026-08-08 | dtype-verification | ca3919a | both | n/a | n/a (code change) | plans/dtype-verification.md | 0 | done | upstream loads both checkpoints as fp16; both are natively bf16 | no evaluation run; adds `--dtype`, default float16 so R-runs are unchanged unless passed. Verification carried by R-01/R-05/R-06/R-10 re-run with `--dtype bfloat16` |
-| R-00-qwen | 2026-08-08 | main | 0879f87 | Qwen2.5-7B-Instruct | math500 (500) | none | configs/r00_qwen.yaml | 3.16 | done | accuracy=0.7640 | dtype=torch.bfloat16; hook=none; cache_size=512; chunk_size=128; frozen_size=0; peak=14.375GB; tf=5.14.1; **DIRTY TREE**; bf16 vs upstream fp16; target ≈.766; `hook: none` isolates weight dtype |
+| R-00-qwen | 2026-08-08 | main | 0879f87 | Qwen2.5-7B-Instruct | math500 (500) | none | configs/r00_qwen.yaml | 3.16 | done | accuracy=0.7640 | dtype=torch.bfloat16; hook=none; cache_size=512; chunk_size=128; frozen_size=0; peak=14.375GB; tf=5.14.1; **DIRTY TREE**; dtype=torch.bfloat16; hook=none; cache_size=512; chunk_size=128; frozen_size=0; peak=14.375GB; tf=5.14.1; **DIRTY TREE**; bf16 vs upstream fp16; target ≈.766; `hook: none` isolates weight dtype |
 | R-00-llama | | main | | Llama-3.1-8B | MATH500 (500) | full | configs/r00_llama.yaml | | queued | | bf16 vs upstream fp16; target ≈.488; gated model, needs HF login |
 | R-01 | | main | | Llama-3.1-8B | MATH500 | full | configs/r01.yaml | | | | env sanity anchor; target ≈.488 |
 | R-02 | | main | | Llama-3.1-8B | MATH500 | sliding | configs/r02.yaml | | | | target ≈.458 |
@@ -108,6 +108,8 @@ comparable. Accuracy is unaffected by concurrency.
 | Q1-01 | | q1-layer-sweep | | Llama-3.1-8B | LongHealth (all 400) | counter-causal (split ℓ=8) | configs/q1_flip8.yaml | | queued | | layers 0-7 causal, 8-31 flipped; else matches R-11 group |
 | Q1-02 | | q1-layer-sweep | | Llama-3.1-8B | LongHealth (all 400) | counter-causal (split ℓ=16) | configs/q1_flip16.yaml | | queued | | layers 0-15 causal, 16-31 flipped |
 | Q1-03 | | q1-layer-sweep | | Llama-3.1-8B | LongHealth (all 400) | counter-causal (split ℓ=24) | configs/q1_flip24.yaml | | queued | | layers 0-23 causal, 24-31 flipped |
+| R-11-none | 2026-08-08 | main | ea44d71 | Llama-3.1-8B-Instruct | longhealth (400) | none | configs/r11_none.yaml | 0.21 | done | accuracy=0.8100 | dtype=torch.float16; hook=none; cache_size=4062; chunk_size=1024; frozen_size=34; peak=17.113GB; tf=5.14.1; **DIRTY TREE** |
+| R-11-h2o | 2026-08-08 | main | ea44d71 | Llama-3.1-8B-Instruct | longhealth (400) | h2o | configs/r11_h2o.yaml | 0.25 | done | accuracy=0.7750 | dtype=torch.float16; hook=h2o; cache_size=7966; chunk_size=2000; frozen_size=34; peak=18.556GB; hook=247.131s/2445calls; tf=5.14.1; **DIRTY TREE** |
 
 
 ## Per-run template (copy into notes/ or manifest)

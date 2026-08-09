@@ -1,0 +1,52 @@
+{
+  "run_id": "R-11-h2o",
+  "config_path": "configs/r11_h2o.yaml",
+  "command": "evaluate.py --config configs/r11_h2o.yaml --run_id R-11-h2o",
+  "regeneration_command": "python evaluate.py --config configs/r11_h2o.yaml --run_id R-11-h2o",
+  "seed": 0,
+  "git": {
+    "commit": "ea44d718d6efc14312f39943d3144555b8d7478b",
+    "commit_short": "ea44d71",
+    "branch": "main",
+    "dirty": true
+  },
+  "env": {
+    "python": "3.12.13",
+    "platform": "Linux-6.8.0-90-generic-x86_64-with-glibc2.35",
+    "hostname": "d1c97b3b6634",
+    "torch": "2.10.0+cu128",
+    "transformers": "5.14.1",
+    "cuda": "12.8",
+    "cudnn": 91002,
+    "gpus": [
+      {
+        "name": "NVIDIA H100 80GB HBM3",
+        "total_memory_gb": 79.18,
+        "capability": "9.0"
+      }
+    ]
+  },
+  "timing": {
+    "wall_sec": 890.13,
+    "peak_gpu_gb": 18.556,
+    "hook_calls": 2445,
+    "hook_sec": 247.131,
+    "hook_sec_per_call": 0.1011
+  },
+  "dataset_slice": {
+    "task": "longhealth",
+    "n_samples": 400,
+    "subject": null,
+    "level": null,
+    "category": null,
+    "max_samples": null,
+    "single_sample": null
+  },
+  "raw": {
+    "path": "results/R-11-h2o/raw/generations.jsonl.gz",
+    "sha256": "746b89b053400c791f803c9dd6304f701d71ccd23f7f560ecdd4e005310fdea9",
+    "bytes": 11282,
+    "megabytes": 0.01,
+    "committable": true
+  }
+}
