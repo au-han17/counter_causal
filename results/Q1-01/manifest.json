@@ -1,0 +1,52 @@
+{
+  "run_id": "Q1-01",
+  "config_path": "configs/q1_flip8.yaml",
+  "command": "evaluate.py --config configs/q1_flip8.yaml --run_id Q1-01",
+  "regeneration_command": "python evaluate.py --config configs/q1_flip8.yaml --run_id Q1-01",
+  "seed": 0,
+  "git": {
+    "commit": "6c1a4d9f5f7512a65b180b5d8df8c6326d2b7552",
+    "commit_short": "6c1a4d9",
+    "branch": "q1-layer-sweep",
+    "dirty": true
+  },
+  "env": {
+    "python": "3.12.13",
+    "platform": "Linux-6.8.0-90-generic-x86_64-with-glibc2.35",
+    "hostname": "d1c97b3b6634",
+    "torch": "2.10.0+cu128",
+    "transformers": "5.14.1",
+    "cuda": "12.8",
+    "cudnn": 91002,
+    "gpus": [
+      {
+        "name": "NVIDIA H100 80GB HBM3",
+        "total_memory_gb": 79.18,
+        "capability": "9.0"
+      }
+    ]
+  },
+  "timing": {
+    "wall_sec": 1986.03,
+    "peak_gpu_gb": 24.598,
+    "hook_calls": 2445,
+    "hook_sec": 1226.513,
+    "hook_sec_per_call": 0.5016
+  },
+  "dataset_slice": {
+    "task": "longhealth",
+    "n_samples": 400,
+    "subject": null,
+    "level": null,
+    "category": null,
+    "max_samples": null,
+    "single_sample": null
+  },
+  "raw": {
+    "path": "results/Q1-01/raw/generations.jsonl.gz",
+    "sha256": "700a188622480c49a1a81c5c53c34749d56203740c53cbae7780ccb0e2a1f235",
+    "bytes": 10754,
+    "megabytes": 0.01,
+    "committable": true
+  }
+}

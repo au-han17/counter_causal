@@ -1,0 +1,24 @@
+{
+  "score_key": "accuracy",
+  "score": 0.7925,
+  "task": "longhealth",
+  "model": "meta-llama/Llama-3.1-8B-Instruct",
+  "dtype": "torch.float16",
+  "hook": "counter_split",
+  "flip_from_layer": 16,
+  "refresh_mode": "chunked",
+  "cache_size": 7966,
+  "chunk_size": 2000,
+  "frozen_size": 34,
+  "recent_size": null,
+  "seed": 0,
+  "run_id": "Q1-02",
+  "config": "configs/q1_flip16.yaml",
+  "timing": {
+    "wall_sec": 1982.66,
+    "peak_gpu_gb": 24.598,
+    "hook_calls": 2445,
+    "hook_sec": 1229.442,
+    "hook_sec_per_call": 0.5028
+  }
+}
