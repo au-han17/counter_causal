@@ -30,10 +30,15 @@ caches bit-identical until the first eviction, so the cycle-1 sanity check is a 
 **Pass B (instrumented real run).** Chunked prefill, counter-causal (full) driving
 eviction. At each refresh, before the argsort: log practical scores from fossil K/V
 and oracle scores from library K/V gathered by original position (queries re-embedded
-as usual), for three methods — CC-full, CC-fast (refinement 3: the deployed default;
-oracle h^(L-1) from the library; measured on the full-driven trajectory), and
-Importance on last-layer keys. Eviction then proceeds from CC-full practical scores,
-untouched: the trajectory is never perturbed by the measurement.
+as usual), for two methods — CC-full and Importance on last-layer keys. Eviction then
+proceeds from CC-full practical scores, untouched: the trajectory is never perturbed
+by the measurement.
+
+*Amendment (2026-08-10, pre-run):* refinement 3 (a CC-fast third pair) was proposed
+and then removed on PI decision — report focus and completion level; CC-full is the
+primary object since drift feeds its measurement instrument at every layer. The
+h^(L-1) library component is therefore not needed. CC-fast drift moves to
+out-of-scope / future work.
 
 **Why Importance and not H2O:** H2O's score is an accumulation over the whole
 trajectory; a per-cycle fresh-K/V counterfactual is ill-defined for it. Importance is

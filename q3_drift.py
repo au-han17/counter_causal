@@ -3,12 +3,12 @@ Q3 — fossil-K/V drift across refresh cycles.
 
 Pass A (library): per conversation, chunked causal prefill with eviction OFF — same
 chunk boundaries and kernel path as Pass B — harvesting every position's K/V at every
-layer plus h^(L-1) to CPU. The drift-free reference.
+layer to CPU. The drift-free reference.
 
 Pass B (instrumented): chunked prefill with counter-causal (full) driving eviction.
 At each refresh cycle, before the argsort: practical scores from the fossil cache and
-oracle scores from library K/V gathered by original position, for CC-full, CC-fast
-and Importance. Eviction then proceeds from CC-full practical scores, untouched.
+oracle scores from library K/V gathered by original position, for CC-full and
+Importance. Eviction then proceeds from CC-full practical scores, untouched.
 
 Sanity: until the first eviction the two caches are bit-identical (same loop, same
 kernels), so cycle 1 asserts torch.equal on the cache and must report Spearman = 1.
@@ -142,21 +142,6 @@ def cc_full_scores(model, kv, input_ids, pos):
     return scores.cpu().numpy()
 
 
-def cc_fast_scores(model, kv, hidden_l1, input_ids, pos):
-    """counter_causal_fast_hook's score vector (hooks.py:372): last layer, FFN skipped."""
-    seq_len = input_ids.shape[1]
-    device = input_ids.device
-    cc_mask = torch.triu(torch.ones(seq_len, seq_len, device=device, dtype=torch.bool), diagonal=1)
-    last = model.model.layers[-1]
-    k, v = _kv_layer(kv, len(model.model.layers) - 1)
-    with torch.no_grad():
-        attn_out = _flip_attend(model, last, hidden_l1, k, v, pos, cc_mask)
-        h_mid = hidden_l1 + attn_out  # skip FFN, as deployed
-        logits = model.lm_head(model.model.norm(h_mid))
-    scores = torch.gather(logits.float(), 2, input_ids.unsqueeze(-1)).squeeze(-1)[0]
-    return scores.cpu().numpy()
-
-
 def imp_scores(last_keys, frozen_size):
     """importance_eviction_hook's body-space score vector (hooks.py:212)."""
     with torch.no_grad():
@@ -191,45 +176,32 @@ def imp_keep_indices(body_scores, cache_size):
 def chunked_prefill(model, input_ids, chunk_size, on_chunk):
     """Replicates generate_with_kv_hook's prefill loop; on_chunk may evict."""
     device = model.device
-    buf = [None]
-
-    def _capture(module, inp, output):
-        h = output[0] if isinstance(output, tuple) else output
-        buf[0] = h.detach()
-
-    handle = model.model.layers[-2].register_forward_hook(_capture)
     state = None
-    try:
-        for step in range(0, input_ids.shape[1], chunk_size):
-            chunk = input_ids[:, step:step + chunk_size]
-            pos_ids = torch.arange(step, step + chunk.shape[1], device=device,
-                                   dtype=torch.long).unsqueeze(0)
-            with torch.no_grad():
-                out = model(input_ids=chunk,
-                            past_key_values=None if state is None else state.kv,
-                            position_ids=pos_ids, use_cache=True)
-            if state is None:
-                state = CacheState(kv=out.past_key_values, tok=chunk, pos=pos_ids,
-                                   hidden=buf[0])
-            else:
-                state = CacheState(
-                    kv=out.past_key_values,
-                    tok=torch.cat((state.tok, chunk), dim=1),
-                    pos=torch.cat((state.pos, pos_ids), dim=1),
-                    hidden=torch.cat((state.hidden, buf[0]), dim=1),
-                )
-            state = on_chunk(state, step + chunk.shape[1])
-    finally:
-        handle.remove()
+    for step in range(0, input_ids.shape[1], chunk_size):
+        chunk = input_ids[:, step:step + chunk_size]
+        pos_ids = torch.arange(step, step + chunk.shape[1], device=device,
+                               dtype=torch.long).unsqueeze(0)
+        with torch.no_grad():
+            out = model(input_ids=chunk,
+                        past_key_values=None if state is None else state.kv,
+                        position_ids=pos_ids, use_cache=True)
+        if state is None:
+            state = CacheState(kv=out.past_key_values, tok=chunk, pos=pos_ids)
+        else:
+            state = CacheState(
+                kv=out.past_key_values,
+                tok=torch.cat((state.tok, chunk), dim=1),
+                pos=torch.cat((state.pos, pos_ids), dim=1),
+            )
+        state = on_chunk(state, step + chunk.shape[1])
     return state
 
 
 def build_library(model, input_ids, chunk_size):
-    """Pass A: eviction-free chunked prefill; harvest K/V + h^(L-1) to CPU."""
+    """Pass A: eviction-free chunked prefill; harvest all-layer K/V to CPU."""
     n_layers = len(model.model.layers)
     lib_k = [[] for _ in range(n_layers)]
     lib_v = [[] for _ in range(n_layers)]
-    lib_h = []
     done = [0]
 
     def on_chunk(state, _processed):
@@ -238,20 +210,18 @@ def build_library(model, input_ids, chunk_size):
             k, v = _kv_layer(state.kv, l)
             lib_k[l].append(k[:, :, done[0]:new_len, :].cpu().clone())
             lib_v[l].append(v[:, :, done[0]:new_len, :].cpu().clone())
-        lib_h.append(state.hidden[:, done[0]:new_len, :].cpu().clone())
         done[0] = new_len
         return state
 
     chunked_prefill(model, input_ids, chunk_size, on_chunk)
     lib_k = [torch.cat(parts, dim=2) for parts in lib_k]
     lib_v = [torch.cat(parts, dim=2) for parts in lib_v]
-    lib_h = torch.cat(lib_h, dim=1)
     torch.cuda.empty_cache()
-    return lib_k, lib_v, lib_h
+    return lib_k, lib_v
 
 
 def run_instrumented(model, input_ids, chunk_size, cache_size, frozen_size,
-                     lib_k, lib_v, lib_h, conv_id, records):
+                     lib_k, lib_v, conv_id, records):
     """Pass B: cc-full-driven eviction with per-cycle practical/oracle logging."""
     device = model.device
     cycle = [0]
@@ -267,9 +237,8 @@ def run_instrumented(model, input_ids, chunk_size, cache_size, frozen_size,
         seq_len = state.tok.shape[1]
         positions = state.pos[0]
 
-        # oracle cache: fresh K/V (and hidden) for the same surviving positions
+        # oracle cache: fresh K/V for the same surviving positions
         okv = gather_library_kv(lib_k, lib_v, positions, device)
-        oh = lib_h.index_select(1, positions.cpu()).to(device)
 
         # cycle-1 sanity: same loop, same kernels, nothing evicted yet -> bit-equal
         if evictions_so_far[0] == 0:
@@ -282,8 +251,6 @@ def run_instrumented(model, input_ids, chunk_size, cache_size, frozen_size,
 
         cc_p = cc_full_scores(model, state.kv, state.tok, state.pos)
         cc_o = cc_full_scores(model, okv, state.tok, state.pos)
-        fast_p = cc_fast_scores(model, state.kv, state.hidden, state.tok, state.pos)
-        fast_o = cc_fast_scores(model, okv, oh, state.tok, state.pos)
         imp_p = imp_scores(_kv_layer(state.kv, -1)[0], frozen_size)
         imp_o = imp_scores(okv[-1][0], frozen_size)
 
@@ -293,7 +260,6 @@ def run_instrumented(model, input_ids, chunk_size, cache_size, frozen_size,
         rec = {
             "conv_id": conv_id, "cycle": cycle[0], "n_body": body_n,
             "spearman_cc": spearman(cc_p[sl], cc_o[sl]),
-            "spearman_fast": spearman(fast_p[sl], fast_o[sl]),
             "spearman_imp": spearman(imp_p[:-1], imp_o[:-1]),
         }
 
@@ -302,8 +268,6 @@ def run_instrumented(model, input_ids, chunk_size, cache_size, frozen_size,
         for name, kp, ko in (
             ("cc", cc_keep_indices(cc_p, frozen_size, cache_size),
                    cc_keep_indices(cc_o, frozen_size, cache_size)),
-            ("fast", cc_keep_indices(fast_p, frozen_size, cache_size),
-                     cc_keep_indices(fast_o, frozen_size, cache_size)),
             ("imp", imp_keep_indices(imp_p, cache_size),
                     imp_keep_indices(imp_o, cache_size)),
         ):
@@ -324,10 +288,10 @@ def run_instrumented(model, input_ids, chunk_size, cache_size, frozen_size,
 
         records.append(rec)
         print(f"  [{conv_id}] cycle {cycle[0]:>2} n={body_n} "
-              f"rho cc={rec['spearman_cc']:.4f} fast={rec['spearman_fast']:.4f} "
-              f"imp={rec['spearman_imp']:.4f} jac_ev cc={rec['jac_evict_cc']:.3f}")
+              f"rho cc={rec['spearman_cc']:.4f} imp={rec['spearman_imp']:.4f} "
+              f"jac_ev cc={rec['jac_evict_cc']:.3f} imp={rec['jac_evict_imp']:.3f}")
 
-        del okv, oh
+        del okv
         # evict exactly as counter_causal_hook would, from the practical scores
         keep_body = cc_keep_indices(cc_p, frozen_size, cache_size)
         keep = torch.tensor(sorted(keep_body), device=device, dtype=torch.long)
@@ -454,12 +418,12 @@ def main():
             n_tok = c["ids"].shape[1]
             print(f"\n{c['conv_id']}: {n_tok} tokens, frozen={c['frozen']}")
             ids = c["ids"].to(device)
-            lib_k, lib_v, lib_h = build_library(model, ids, args.chunk_size)
+            lib_k, lib_v = build_library(model, ids, args.chunk_size)
             n_cycles = run_instrumented(model, ids, args.chunk_size, args.cache_size,
-                                        c["frozen"], lib_k, lib_v, lib_h,
+                                        c["frozen"], lib_k, lib_v,
                                         c["conv_id"], records)
             print(f"{c['conv_id']}: {n_cycles} cycles")
-            del lib_k, lib_v, lib_h
+            del lib_k, lib_v
             torch.cuda.empty_cache()
 
     if not records:
@@ -470,7 +434,7 @@ def main():
         return round(float(np.mean(vals)), 4) if vals else None
 
     summary = {}
-    for m in ("cc", "fast", "imp"):
+    for m in ("cc", "imp"):
         summary[m] = {
             "spearman_cycle1": agg(f"spearman_{m}", lambda r: r["cycle"] == 1),
             "spearman_cycles_2_5": agg(f"spearman_{m}", lambda r: 2 <= r["cycle"] <= 5),

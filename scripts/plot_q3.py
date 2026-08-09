@@ -1,8 +1,8 @@
 """
 Figure for Q3: practical-vs-oracle agreement per refresh cycle.
 
-Two panels — Spearman and evicted-set Jaccard — three methods (cc, fast, imp),
-per-cycle mean across conversations with an interquartile band. The evicted-Jaccard
+Two panels — Spearman and evicted-set Jaccard — two methods (cc, imp),
+per-cycle median across conversations with an interquartile band. The evicted-Jaccard
 chance level (~0.11 at J=4096, n=5120) is drawn as a dashed floor.
 
     python scripts/plot_q3.py [results/Q3-01] [--out results/Q3-01/figure.png]
@@ -59,11 +59,10 @@ def main():
     chance = exp_inter / (2 * e - exp_inter)
 
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.2), sharex=True)
-    colors = {"cc": "#c0392b", "fast": "#2471a3", "imp": "#7d6608"}
-    labels = {"cc": "counter-causal (full)", "fast": "counter-causal (fast)",
-              "imp": "importance"}
+    colors = {"cc": "#c0392b", "imp": "#7d6608"}
+    labels = {"cc": "counter-causal (full)", "imp": "importance"}
 
-    for m_ in ("cc", "fast", "imp"):
+    for m_ in ("cc", "imp"):
         med, lo, hi = series(f"spearman_{m_}")
         axes[0].plot(cycles, med, color=colors[m_], label=labels[m_])
         axes[0].fill_between(cycles, lo, hi, color=colors[m_], alpha=0.18, lw=0)
