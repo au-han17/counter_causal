@@ -107,6 +107,7 @@ comparable. Accuracy is unaffected by concurrency.
 | R-11-fast | 2026-08-08 | main | 0879f87 | Llama-3.1-8B-Instruct | longhealth (400) | counter_fast | configs/r11_fast.yaml | 0.23 | done | accuracy=0.8050 | dtype=torch.float16; hook=counter_fast; cache_size=7966; chunk_size=2000; frozen_size=34; peak=20.862GB; hook=72.948s/2445calls; tf=5.14.1; **DIRTY TREE** |
 | R-11-none | 2026-08-08 | main | ea44d71 | Llama-3.1-8B-Instruct | longhealth (400) | none | configs/r11_none.yaml | 0.21 | done | accuracy=0.8100 | dtype=torch.float16; hook=none; cache_size=4062; chunk_size=1024; frozen_size=34; peak=17.113GB; tf=5.14.1; **DIRTY TREE** |
 | R-11-h2o | 2026-08-08 | main | ea44d71 | Llama-3.1-8B-Instruct | longhealth (400) | h2o | configs/r11_h2o.yaml | 0.25 | done | accuracy=0.7750 | dtype=torch.float16; hook=h2o; cache_size=7966; chunk_size=2000; frozen_size=34; peak=18.556GB; hook=247.131s/2445calls; tf=5.14.1; **DIRTY TREE** |
+| Q3-01 | | q3-drift | | Llama-3.1-8B | LoCoMo 5 longest convs (prefill only) | cc-full-driven eviction, practical vs oracle scores | configs/q3_drift.yaml | | queued | | J=4096 h=1024; Spearman + evicted-Jaccard per cycle; cc/fast/imp; cycle-1 bit-exact sanity |
 
 
 ## Per-run template (copy into notes/ or manifest)

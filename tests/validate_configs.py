@@ -22,6 +22,10 @@ types = {a.dest: a.type for a in parser._actions if a.type}
 
 bad = 0
 for path in sorted(glob.glob("configs/*.yaml")):
+    if os.path.basename(path).startswith(("q2_", "q3_")):
+        # standalone-pipeline configs; validated by their own script's load_config
+        print(f"  skip  {os.path.basename(path):22} (standalone pipeline)")
+        continue
     cfg = yaml.safe_load(io.open(path, encoding="utf-8")) or {}
     errs = []
     for k, v in cfg.items():

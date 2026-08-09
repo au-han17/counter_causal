@@ -1,0 +1,11 @@
+# Q3-01 — fossil-K/V drift across refresh cycles
+# Library (eviction-free) vs instrumented cc-full-driven prefill on the 5 longest
+# LoCoMo conversations. See plans/q3-drift.md for the pre-registered design.
+model: meta-llama/Llama-3.1-8B-Instruct
+dtype: float16
+data_path: data/locomo10.json
+n_convs: 5
+cache_size: 4096
+chunk_size: 1024
+max_tokens: 32000
+seed: 0

@@ -44,3 +44,6 @@ models/
 
 # Run queue logs — regenerated every run, never worth committing
 logs/
+
+# LoCoMo raw data — auto-downloaded by q3_drift.py
+data/
