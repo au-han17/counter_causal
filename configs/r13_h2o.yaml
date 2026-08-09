@@ -1,0 +1,22 @@
+# R-13-h2o — Llama-3.1-8B, LoCoMo multi-hop (282), h2o, cache 15000
+# Paper Table 2 target: n/a — anomaly probe, not a paper number
+#
+# LoCoMo category 1 == multi-hop (282 QA pairs), verified against locomo10.json:
+# mean 3.13 evidence items per question, 98% with >=2, vs ~1.1 for every other
+# category. Category 2 is temporal ("when ..."), 4 is single-hop, 5 adversarial.
+# The upstream example comment labelling category 1 as single-hop is incorrect.
+# chunk_size left unset => cache_size//4 = 3750. The ledger does not specify it.
+# recent_size omitted on purpose: build_hook applies the upstream defaults
+# (0 for counter-causal variants, cache_size//2 for h2o), per README "Key arguments".
+# Paper §: for long-context tasks (LongHealth, Qasper, LoCoMo) the task system
+# prompt is kept frozen as sink tokens, for ALL strategies. It "consumes a small
+# number of our J memory slots", which is what --auto_frozen does: frozen_size is
+# read from the task system prompt and subtracted from cache_size.
+task: locomo
+model: meta-llama/Llama-3.1-8B-Instruct
+dtype: float16
+hook: h2o
+category: 1
+cache_size: 15000
+auto_frozen: true
+seed: 0

@@ -39,7 +39,27 @@ LH_RUNS=(
   "R-11-none:configs/r11_none.yaml"
   "R-11-h2o:configs/r11_h2o.yaml"
 )
-RUNS=("${MATH_RUNS[@]}" "${LH_RUNS[@]}")
+# deferred reproduction, resumed while report drafting (use --parallel 4)
+MATH2_RUNS=(
+  "R-00-llama:configs/r00_llama.yaml"
+  "R-01:configs/r01.yaml"
+  "R-02:configs/r02.yaml"
+  "R-03:configs/r03.yaml"
+  "R-04:configs/r04.yaml"
+  "R-05:configs/r05.yaml"
+  "R-07:configs/r07.yaml"
+  "R-08:configs/r08.yaml"
+)
+# LoCoMo multi-hop at cache 15000 (use --parallel 2 — counter's scoring pass over
+# ~19k candidates peaks ~35GB; the order below keeps heavy runs from pairing)
+R13_RUNS=(
+  "R-13-full:configs/r13_full.yaml"
+  "R-13-sliding:configs/r13_sliding.yaml"
+  "R-13-h2o:configs/r13_h2o.yaml"
+  "R-13-counter:configs/r13_counter.yaml"
+  "R-13-fast:configs/r13_fast.yaml"
+)
+RUNS=("${MATH_RUNS[@]}" "${LH_RUNS[@]}" "${MATH2_RUNS[@]}" "${R13_RUNS[@]}")
 
 say() { echo "[$(date +%H:%M:%S)] $*" | tee -a "$LOG"; }
 
@@ -160,6 +180,8 @@ while [ $# -gt 0 ]; do
     --parallel)  shift; PARALLEL="${1:-1}" ;;
     math)        for e in "${MATH_RUNS[@]}"; do WANTED+=("${e%%:*}"); done ;;
     lh)          for e in "${LH_RUNS[@]}";   do WANTED+=("${e%%:*}"); done ;;
+    math2)       for e in "${MATH2_RUNS[@]}"; do WANTED+=("${e%%:*}"); done ;;
+    r13)         for e in "${R13_RUNS[@]}";  do WANTED+=("${e%%:*}"); done ;;
     all)         for e in "${RUNS[@]}";      do WANTED+=("${e%%:*}"); done ;;
     -*)          say "unknown option: $1"; exit 2 ;;
     *)           WANTED+=("$1") ;;

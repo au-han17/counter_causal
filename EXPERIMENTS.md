@@ -82,6 +82,11 @@ These runs were executed concurrently (4 MATH500, then 2 LongHealth), so the `wa
 and `peak_gpu_gb` fields in their manifests reflect contended GPU time and are not
 comparable. Accuracy is unaffected by concurrency.
 
+**2026-08-10 — deferred set partially resumed** during report drafting: R-00-llama,
+R-01..R-05, R-07, R-08 (`math2` group, parallel 4) and R-13-* (`r13` group, parallel
+2, category-1 multi-hop configs restored from pre-deletion history with the slice fix
+intact). R-12 and R-14 remain deferred.
+
 ## Ledger
 
 | runID | date | branch | commit | model | dataset (slice) | strategy | config | GPU-h | status | headline result | notes |

@@ -1,0 +1,11 @@
+# R-02 — Llama-3.1-8B-Instruct, MATH500, sliding window
+# Paper Table 2 target: .458
+# Paper setting: J=512, h=256.
+task: math500
+model: meta-llama/Llama-3.1-8B-Instruct
+dtype: float16
+hook: sliding
+cache_size: 512
+chunk_size: 256
+max_new_tokens: 2048
+seed: 0
