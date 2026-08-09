@@ -256,11 +256,14 @@ def run_instrumented(model, input_ids, chunk_size, cache_size, frozen_size,
     device = model.device
     cycle = [0]
     evictions_so_far = [0]
+    prev_cache_len = [0]
 
     def on_chunk(state, _processed):
         if _get_cache_size(state) <= cache_size + frozen_size:
+            prev_cache_len[0] = _get_cache_size(state)
             return state
         cycle[0] += 1
+        n_new = _get_cache_size(state) - prev_cache_len[0]  # this chunk's cohort
         seq_len = state.tok.shape[1]
         positions = state.pos[0]
 
@@ -307,12 +310,17 @@ def run_instrumented(model, input_ids, chunk_size, cache_size, frozen_size,
             rec[f"jac_keep_{name}"] = jaccard(kp, ko)
             rec[f"jac_evict_{name}"] = jaccard(all_body - kp, all_body - ko)
 
-        # mechanism: K drift of the fossil cache vs the library
+        # mechanism: K drift of the fossil cache vs the library.
+        # Each K is computed once and never updated, so per-position cosine is fixed
+        # at birth; the survivor mean moves only through population turnover. The
+        # newest-cohort mean isolates compounding: cohorts born after more evictions
+        # were computed from a more corrupted cache.
         for l in (len(lib_k) // 2, len(lib_k) - 1):
             fk, _ = _kv_layer(state.kv, l)
             cs = F.cosine_similarity(fk[0, :, frozen_size:, :].float(),
                                      okv[l][0][0, :, frozen_size:, :].float(), dim=-1)
             rec[f"cos_k_l{l}"] = round(float(cs.mean().item()), 6)
+            rec[f"cos_k_l{l}_newcohort"] = round(float(cs[:, -n_new:].mean().item()), 6)
 
         records.append(rec)
         print(f"  [{conv_id}] cycle {cycle[0]:>2} n={body_n} "
@@ -324,7 +332,9 @@ def run_instrumented(model, input_ids, chunk_size, cache_size, frozen_size,
         keep_body = cc_keep_indices(cc_p, frozen_size, cache_size)
         keep = torch.tensor(sorted(keep_body), device=device, dtype=torch.long)
         evictions_so_far[0] += 1
-        return _select_tokens(state, frozen_size, keep)
+        state = _select_tokens(state, frozen_size, keep)
+        prev_cache_len[0] = _get_cache_size(state)
+        return state
 
     chunked_prefill(model, input_ids, chunk_size, on_chunk)
     torch.cuda.empty_cache()
@@ -472,6 +482,8 @@ def main():
         f"l{l}": {
             "cycle1": agg(f"cos_k_l{l}", lambda r: r["cycle"] == 1),
             "cycles_11plus": agg(f"cos_k_l{l}", lambda r: r["cycle"] >= 11),
+            "newcohort_cycle1": agg(f"cos_k_l{l}_newcohort", lambda r: r["cycle"] == 1),
+            "newcohort_cycles_11plus": agg(f"cos_k_l{l}_newcohort", lambda r: r["cycle"] >= 11),
         } for l in (len(model.model.layers) // 2, len(model.model.layers) - 1)
     }
 

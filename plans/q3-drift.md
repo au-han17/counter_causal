@@ -55,8 +55,12 @@ only representation staleness is.
 4. Refinement 2: decision metric = Jaccard of EVICTED sets (chance ≈ 0.11), since
    keep-set Jaccard is pigeonhole-bounded ≥ 0.60 at J/n = 4096/5120 and hides drift.
    Keep-set Jaccard logged too.
-5. Refinement 5: mechanism metric — mean cosine(fossil K, library K) over survivors,
-   layers 16 and 31, per cycle.
+5. Refinement 5: mechanism metric — mean cosine(fossil K, library K), layers 16 and
+   31, per cycle. Note (amended 2026-08-10, pre-run): each K is computed once and
+   never updated, so per-position cosine is fixed at birth; the survivor mean moves
+   only through population turnover. Therefore ALSO logged per cycle: the newest
+   cohort's mean cosine — if it declines with cycle index, distortion compounds
+   recursively; if flat, each cohort is equally distorted and drift is bounded.
 6. Sanity: cycle-1 cache equality assert; cycle-1 Spearman must be 1.0.
 7. Outputs: per-cycle jsonl + metrics.json summary + scripts/plot_q3.py figure
    (cycle index vs Spearman / evicted-Jaccard, per-method mean with IQR band across
