@@ -85,7 +85,9 @@ Spearman, n=50 Qwen-generated MATH500 solutions.
 | fast (log-prob) vs referee backward | −0.034 | 44% |
 | full vs referee **forward** (direction control) | +0.036 | 66% |
 | full vs backward, **frequency partialled out** | +0.039 | 70% |
+| full (log-prob) vs backward, frequency partialled out | **+0.072** | 82% |
 | fast vs backward, frequency partialled out | −0.045 | 36% |
+| fast (log-prob) vs backward, frequency partialled out | −0.072 | 32% |
 | full score vs fast score | +0.324 | 98% |
 
 Reading (per the pre-registered interpretation guide):
@@ -93,13 +95,12 @@ Reading (per the pre-registered interpretation guide):
 - **Full:** faithful but weak — 28% of ceiling as deployed, 42% with log-probs;
   direction-specific (backward ≫ forward); **~60% of the deployed signal is word
   frequency** (0.097 → 0.039 after partial; residual real, sign test p ≈ 0.007, but
-  small). Log-prob variant's own frequency partial: run
-  `python scripts/q2_logprob_partial.py` — decides whether log-prob carries genuine
-  backward signal the deployed raw-logit score wastes. *(number to be inserted
-  before the meeting)*
+  small). The log-prob variant's residual is roughly **double**: +0.072 after the
+  frequency partial, positive in 82% of sequences (sign test p ≈ 6×10⁻⁶). Log-prob
+  scoring carries genuine backward signal that the deployed raw-logit score halves.
 - **Fast — the deployed default:** does not track a backward conditional. ~Zero
-  against the referee in both directions, negative after the frequency partial,
-  positive in only 58% of sequences.
+  against the referee in both directions, negative after the frequency partial in
+  both score variants (raw −0.045, log-prob −0.072; 36%/32% of sequences positive).
 - Yet fast evicts at the ceiling (Q1) and full-fast rank agreement is only 0.32.
 
 ## Implications
@@ -109,7 +110,8 @@ Reading (per the pre-registered interpretation guide):
   the variant that evicts best measures it least.
 - Practical consequences: (a) the fast variant is strictly preferable at this budget —
   cheaper and never worse; (b) scoring with log-probs instead of raw logits is a
-  one-line change with measurably better faithfulness, eviction impact untested;
+  one-line change that doubles the frequency-adjusted backward signal
+  (+0.039 → +0.072), eviction impact untested;
   (c) benchmarks with more contested mass are needed to separate scoring functions
   at all.
 - **Q3 (next): staleness.** If the score's utility is frequency-shaped rather than
