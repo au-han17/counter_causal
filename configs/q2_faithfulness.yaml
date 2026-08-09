@@ -1,0 +1,15 @@
+# Q2-01 — surprise-score faithfulness vs ModernBERT backward-conditional referee
+# Sequences: Qwen-generated MATH500 solutions from R-00-qwen (bf16 run), scored by the
+# same model in the same dtype. See plans/q2-faithfulness.md for the pre-registered
+# controls and interpretation guide.
+dump: results/R-00-qwen/raw/generations.jsonl.gz
+qwen_model: Qwen/Qwen2.5-7B-Instruct
+referee_model: answerdotai/ModernBERT-base
+dtype: bfloat16
+n_seqs: 50
+min_tokens: 128
+max_tokens: 2048
+max_words_per_seq: 400
+min_words: 30
+batch_size: 64
+seed: 0

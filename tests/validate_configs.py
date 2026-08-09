@@ -22,6 +22,11 @@ types = {a.dest: a.type for a in parser._actions if a.type}
 
 bad = 0
 for path in sorted(glob.glob("configs/*.yaml")):
+    if os.path.basename(path).startswith("q2_"):
+        # Q2 configs feed q2_faithfulness.py, whose own load_config validates keys
+        # against its parser at run time.
+        print(f"  skip  {os.path.basename(path):22} (q2 standalone pipeline)")
+        continue
     cfg = yaml.safe_load(io.open(path, encoding="utf-8")) or {}
     errs = []
     for k, v in cfg.items():
