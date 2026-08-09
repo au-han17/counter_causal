@@ -92,7 +92,10 @@ def _git(*args, repo_root=None):
 
 def git_info(repo_root=None) -> dict:
     """Commit, branch and dirty flag. A dirty tree makes a run non-reconstructable."""
-    status = _git("status", "--porcelain", repo_root=repo_root)
+    # --untracked-files=no: the run's own results/<runID>/ output exists before the
+    # manifest is written, so counting untracked files flagged every run as dirty.
+    # Reconstructability depends on *tracked* modifications only.
+    status = _git("status", "--porcelain", "--untracked-files=no", repo_root=repo_root)
     return {
         "commit": _git("rev-parse", "HEAD", repo_root=repo_root),
         "commit_short": _git("rev-parse", "--short", "HEAD", repo_root=repo_root),
