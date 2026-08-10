@@ -118,6 +118,7 @@ intact). R-12 and R-14 remain deferred.
 | R-13-sliding | 2026-08-10 | main | 7fd6ae1 | Llama-3.1-8B-Instruct | locomo (282) category=1 | sliding | configs/r13_sliding.yaml | 0.38 | done | mean_f1=0.2042 | dtype=torch.float16; hook=sliding; cache_size=14948; chunk_size=3750; frozen_size=52; peak=21.532GB; hook=23.342s/1725calls; tf=5.14.1 |
 | R-13-h2o | 2026-08-10 | main | 7fd6ae1 | Llama-3.1-8B-Instruct | locomo (282) category=1 | h2o | configs/r13_h2o.yaml | 0.54 | done | mean_f1=0.1893 | dtype=torch.float16; hook=h2o; cache_size=14948; chunk_size=3750; frozen_size=52; peak=24.594GB; hook=629.34s/1725calls; tf=5.14.1 |
 | R-13-counter | 2026-08-10 | main | 7fd6ae1 | Llama-3.1-8B-Instruct | locomo (282) category=1 | counter_causal | configs/r13_counter.yaml | 0.99 | done | mean_f1=0.2333 | dtype=torch.float16; hook=counter_causal; cache_size=14948; chunk_size=3750; frozen_size=52; peak=32.98GB; hook=2281.973s/1725calls; tf=5.14.1 |
+| R-13-fast | 2026-08-10 | main | 7fd6ae1 | Llama-3.1-8B-Instruct | locomo (282) category=1 | counter_fast | configs/r13_fast.yaml | 0.41 | done | mean_f1=0.2254 | dtype=torch.float16; hook=counter_fast; cache_size=14948; chunk_size=3750; frozen_size=52; peak=26.162GB; hook=122.107s/1725calls; tf=5.14.1 |
 
 
 ## Per-run template (copy into notes/ or manifest)
