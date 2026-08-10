@@ -1,0 +1,49 @@
+{
+  "run_id": "R-00-llama",
+  "config_path": "configs/r00_llama.yaml",
+  "command": "evaluate.py --config configs/r00_llama.yaml --run_id R-00-llama",
+  "regeneration_command": "python evaluate.py --config configs/r00_llama.yaml --run_id R-00-llama",
+  "seed": 0,
+  "git": {
+    "commit": "7fd6ae1e4a8f202d49732f7368ab32d598bf1cbe",
+    "commit_short": "7fd6ae1",
+    "branch": "main",
+    "dirty": false
+  },
+  "env": {
+    "python": "3.12.13",
+    "platform": "Linux-6.8.0-90-generic-x86_64-with-glibc2.35",
+    "hostname": "d1c97b3b6634",
+    "torch": "2.10.0+cu128",
+    "transformers": "5.14.1",
+    "cuda": "12.8",
+    "cudnn": 91002,
+    "gpus": [
+      {
+        "name": "NVIDIA H100 80GB HBM3",
+        "total_memory_gb": 79.18,
+        "capability": "9.0"
+      }
+    ]
+  },
+  "timing": {
+    "wall_sec": 12271.63,
+    "peak_gpu_gb": 15.339
+  },
+  "dataset_slice": {
+    "task": "math500",
+    "n_samples": 500,
+    "subject": null,
+    "level": null,
+    "category": null,
+    "max_samples": null,
+    "single_sample": null
+  },
+  "raw": {
+    "path": "results/R-00-llama/raw/generations.jsonl.gz",
+    "sha256": "0934659d27e77ef5b0816e42141deb7744128c9d17255925ab61ff6669229a5f",
+    "bytes": 159799,
+    "megabytes": 0.15,
+    "committable": true
+  }
+}

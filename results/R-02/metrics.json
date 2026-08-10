@@ -1,0 +1,23 @@
+{
+  "score_key": "accuracy",
+  "score": 0.462,
+  "task": "math500",
+  "model": "meta-llama/Llama-3.1-8B-Instruct",
+  "dtype": "torch.float16",
+  "hook": "sliding",
+  "refresh_mode": "chunked",
+  "cache_size": 512,
+  "chunk_size": 256,
+  "frozen_size": 0,
+  "recent_size": null,
+  "seed": 0,
+  "run_id": "R-02",
+  "config": "configs/r02.yaml",
+  "timing": {
+    "wall_sec": 15109.68,
+    "peak_gpu_gb": 15.259,
+    "hook_calls": 1344,
+    "hook_sec": 4.885,
+    "hook_sec_per_call": 0.0036
+  }
+}

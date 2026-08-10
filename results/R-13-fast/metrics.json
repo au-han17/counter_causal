@@ -1,0 +1,26 @@
+{
+  "score_key": "mean_f1",
+  "score": 0.22538489148907295,
+  "per_category": {
+    "1": 0.22538489148907281
+  },
+  "task": "locomo",
+  "model": "meta-llama/Llama-3.1-8B-Instruct",
+  "dtype": "torch.float16",
+  "hook": "counter_fast",
+  "refresh_mode": "chunked",
+  "cache_size": 14948,
+  "chunk_size": 3750,
+  "frozen_size": 52,
+  "recent_size": null,
+  "seed": 0,
+  "run_id": "R-13-fast",
+  "config": "configs/r13_fast.yaml",
+  "timing": {
+    "wall_sec": 1485.88,
+    "peak_gpu_gb": 26.162,
+    "hook_calls": 1725,
+    "hook_sec": 122.107,
+    "hook_sec_per_call": 0.0708
+  }
+}

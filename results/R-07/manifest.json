@@ -1,0 +1,52 @@
+{
+  "run_id": "R-07",
+  "config_path": "configs/r07.yaml",
+  "command": "evaluate.py --config configs/r07.yaml --run_id R-07",
+  "regeneration_command": "python evaluate.py --config configs/r07.yaml --run_id R-07",
+  "seed": 0,
+  "git": {
+    "commit": "7fd6ae1e4a8f202d49732f7368ab32d598bf1cbe",
+    "commit_short": "7fd6ae1",
+    "branch": "main",
+    "dirty": false
+  },
+  "env": {
+    "python": "3.12.13",
+    "platform": "Linux-6.8.0-90-generic-x86_64-with-glibc2.35",
+    "hostname": "d1c97b3b6634",
+    "torch": "2.10.0+cu128",
+    "transformers": "5.14.1",
+    "cuda": "12.8",
+    "cudnn": 91002,
+    "gpus": [
+      {
+        "name": "NVIDIA H100 80GB HBM3",
+        "total_memory_gb": 79.18,
+        "capability": "9.0"
+      }
+    ]
+  },
+  "timing": {
+    "wall_sec": 11260.54,
+    "peak_gpu_gb": 14.411,
+    "hook_calls": 1287,
+    "hook_sec": 2.574,
+    "hook_sec_per_call": 0.002
+  },
+  "dataset_slice": {
+    "task": "math500",
+    "n_samples": 500,
+    "subject": null,
+    "level": null,
+    "category": null,
+    "max_samples": null,
+    "single_sample": null
+  },
+  "raw": {
+    "path": "results/R-07/raw/generations.jsonl.gz",
+    "sha256": "4187fbf6f05e158d79a172e87e0a7d8132c7403839a09066c29be0a6741cb7e5",
+    "bytes": 189537,
+    "megabytes": 0.18,
+    "committable": true
+  }
+}

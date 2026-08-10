@@ -1,0 +1,23 @@
+{
+  "score_key": "accuracy",
+  "score": 0.692,
+  "task": "math500",
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "dtype": "torch.float16",
+  "hook": "sliding",
+  "refresh_mode": "chunked",
+  "cache_size": 512,
+  "chunk_size": 256,
+  "frozen_size": 0,
+  "recent_size": null,
+  "seed": 0,
+  "run_id": "R-07",
+  "config": "configs/r07.yaml",
+  "timing": {
+    "wall_sec": 11260.54,
+    "peak_gpu_gb": 14.411,
+    "hook_calls": 1287,
+    "hook_sec": 2.574,
+    "hook_sec_per_call": 0.002
+  }
+}

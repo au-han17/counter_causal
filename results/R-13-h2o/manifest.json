@@ -1,0 +1,52 @@
+{
+  "run_id": "R-13-h2o",
+  "config_path": "configs/r13_h2o.yaml",
+  "command": "evaluate.py --config configs/r13_h2o.yaml --run_id R-13-h2o",
+  "regeneration_command": "python evaluate.py --config configs/r13_h2o.yaml --run_id R-13-h2o",
+  "seed": 0,
+  "git": {
+    "commit": "7fd6ae1e4a8f202d49732f7368ab32d598bf1cbe",
+    "commit_short": "7fd6ae1",
+    "branch": "main",
+    "dirty": false
+  },
+  "env": {
+    "python": "3.12.13",
+    "platform": "Linux-6.8.0-90-generic-x86_64-with-glibc2.35",
+    "hostname": "d1c97b3b6634",
+    "torch": "2.10.0+cu128",
+    "transformers": "5.14.1",
+    "cuda": "12.8",
+    "cudnn": 91002,
+    "gpus": [
+      {
+        "name": "NVIDIA H100 80GB HBM3",
+        "total_memory_gb": 79.18,
+        "capability": "9.0"
+      }
+    ]
+  },
+  "timing": {
+    "wall_sec": 1956.45,
+    "peak_gpu_gb": 24.594,
+    "hook_calls": 1725,
+    "hook_sec": 629.34,
+    "hook_sec_per_call": 0.3648
+  },
+  "dataset_slice": {
+    "task": "locomo",
+    "n_samples": 282,
+    "subject": null,
+    "level": null,
+    "category": 1,
+    "max_samples": null,
+    "single_sample": null
+  },
+  "raw": {
+    "path": "results/R-13-h2o/raw/generations.jsonl.gz",
+    "sha256": "6c546c086cda79f3dc24beab9b418ec17d4bbe93a19d769f63d042f04e424a59",
+    "bytes": 26509,
+    "megabytes": 0.03,
+    "committable": true
+  }
+}
