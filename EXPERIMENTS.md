@@ -98,7 +98,7 @@ intact). R-12 and R-14 remain deferred.
 | R-02 | 2026-08-10 | main | 7fd6ae1 | Llama-3.1-8B-Instruct | math500 (500) | sliding | configs/r02.yaml | 4.20 | done | accuracy=0.4620 | dtype=torch.float16; hook=sliding; cache_size=512; chunk_size=256; frozen_size=0; peak=15.259GB; hook=4.885s/1344calls; tf=5.14.1; target ≈.458 |
 | R-03 | 2026-08-10 | main | 7fd6ae1 | Llama-3.1-8B-Instruct | math500 (500) | h2o | configs/r03.yaml | 3.94 | done | accuracy=0.4640 | dtype=torch.float16; hook=h2o; cache_size=512; chunk_size=256; frozen_size=0; peak=15.259GB; hook=12.999s/1256calls; tf=5.14.1; target ≈.464 |
 | R-04 | 2026-08-10 | main | 7fd6ae1 | Llama-3.1-8B-Instruct | math500 (500) | counter_causal | configs/r04.yaml | 2.94 | done | accuracy=0.4820 | dtype=torch.float16; hook=counter_causal; cache_size=512; chunk_size=256; frozen_size=0; peak=15.77GB; hook=36.21s/945calls; tf=5.14.1; target ≈.482 |
-| R-05 | | main | | Llama-3.1-8B | MATH500 | counter-causal (fast) | configs/r05.yaml | | | | target ≈.480 |
+| R-05 | 2026-08-10 | main | 7fd6ae1 | Llama-3.1-8B-Instruct | math500 (500) | counter_fast | configs/r05.yaml | 3.01 | done | accuracy=0.4960 | dtype=torch.float16; hook=counter_fast; cache_size=512; chunk_size=256; frozen_size=0; peak=15.475GB; hook=5.0s/982calls; tf=5.14.1; target ≈.480 |
 | R-06..R-10 | | main | | Qwen2.5-7B | MATH500 | same five | configs/r06..r10.yaml | | | | targets .766/.692/.762/.744/.736 |
 | R-11 | | main | | Llama-3.1-8B | LongHealth (all 400) | counter-causal (full) vs (fast) | configs/r11_{full,fast}.yaml (cache 8000) | | | | anomaly: counter-causal fast > counter-causal full? |
 | R-12 | | main | | Llama-3.1-8B | LongHealth | same | configs/r12_{full,fast}.yaml (cache 9000) | | | | robustness of anomaly |
