@@ -94,7 +94,7 @@ intact). R-12 and R-14 remain deferred.
 | R-00 | 2026-08-08 | dtype-verification | ca3919a | both | n/a | n/a (code change) | plans/dtype-verification.md | 0 | done | upstream loads both checkpoints as fp16; both are natively bf16 | no evaluation run; adds `--dtype`, default float16 so R-runs are unchanged unless passed. Verification carried by R-01/R-05/R-06/R-10 re-run with `--dtype bfloat16` |
 | R-00-qwen | 2026-08-10 | main | 0879f87 | Qwen2.5-7B-Instruct | math500 (500) | none | configs/r00_qwen.yaml | 3.16 | done | accuracy=0.7640 | dtype=torch.bfloat16; hook=none; cache_size=512; chunk_size=128; frozen_size=0; peak=14.375GB; tf=5.14.1; **DIRTY TREE**; bf16 vs upstream fp16; target ≈.766; `hook: none` isolates weight dtype |
 | R-00-llama | 2026-08-10 | main | 7fd6ae1 | Llama-3.1-8B-Instruct | math500 (500) | none | configs/r00_llama.yaml | 3.41 | done | accuracy=0.4620 | dtype=torch.bfloat16; hook=none; cache_size=512; chunk_size=128; frozen_size=0; peak=15.339GB; tf=5.14.1; bf16 vs upstream fp16; target ≈.488; gated model, needs HF login |
-| R-01 | | main | | Llama-3.1-8B | MATH500 | full | configs/r01.yaml | | | | env sanity anchor; target ≈.488 |
+| R-01 | 2026-08-10 | main | 7fd6ae1 | Llama-3.1-8B-Instruct | math500 (500) | none | configs/r01.yaml | 3.40 | done | accuracy=0.4920 | dtype=torch.float16; hook=none; cache_size=512; chunk_size=128; frozen_size=0; peak=15.313GB; tf=5.14.1; env sanity anchor; target ≈.488 |
 | R-02 | | main | | Llama-3.1-8B | MATH500 | sliding | configs/r02.yaml | | | | target ≈.458 |
 | R-03 | | main | | Llama-3.1-8B | MATH500 | H2O | configs/r03.yaml | | | | target ≈.464 |
 | R-04 | | main | | Llama-3.1-8B | MATH500 | counter-causal (full) | configs/r04.yaml | | | | target ≈.482|
