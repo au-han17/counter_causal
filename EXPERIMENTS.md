@@ -113,6 +113,7 @@ intact). R-12 and R-14 remain deferred.
 | R-11-none | 2026-08-10 | main | ea44d71 | Llama-3.1-8B-Instruct | longhealth (400) | none | configs/r11_none.yaml | 0.21 | done | accuracy=0.8100 | dtype=torch.float16; hook=none; cache_size=4062; chunk_size=1024; frozen_size=34; peak=17.113GB; tf=5.14.1; **DIRTY TREE** |
 | R-11-h2o | 2026-08-10 | main | ea44d71 | Llama-3.1-8B-Instruct | longhealth (400) | h2o | configs/r11_h2o.yaml | 0.25 | done | accuracy=0.7750 | dtype=torch.float16; hook=h2o; cache_size=7966; chunk_size=2000; frozen_size=34; peak=18.556GB; hook=247.131s/2445calls; tf=5.14.1; **DIRTY TREE** |
 | R-07 | 2026-08-10 | main | 7fd6ae1 | Qwen2.5-7B-Instruct | math500 (500) | sliding | configs/r07.yaml | 3.13 | done | accuracy=0.6920 | dtype=torch.float16; hook=sliding; cache_size=512; chunk_size=256; frozen_size=0; peak=14.411GB; hook=2.574s/1287calls; tf=5.14.1 |
+| R-08 | 2026-08-10 | main | 7fd6ae1 | Qwen2.5-7B-Instruct | math500 (500) | h2o | configs/r08.yaml | 2.79 | done | accuracy=0.7580 | dtype=torch.float16; hook=h2o; cache_size=512; chunk_size=256; frozen_size=0; peak=14.411GB; hook=5.918s/1093calls; tf=5.14.1 |
 
 
 ## Per-run template (copy into notes/ or manifest)
